@@ -1,0 +1,40 @@
+/* Style to user's theme */
+
+.workspace-leaf-content[data-type="chronos-timeline"] .view-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  /* Style the outer container */
+}
+
+.chronos-timeline-container {
+  background-color: var(--background-secondary);
+}
+
+.chronos-timeline-container .vis-item.vis-background {
+  background-color: hsla(var(--color-accent-hsl) 0.7) !important;
+}
+
+.chronos-timeline-container .vis-item.vis-selected {
+  border-color: var(--color-accent);
+}
+
+.chronos-timeline-container .vis-box,
+.chronos-timeline-container .vis-range {
+  border-color: var(--background-secondary);
+  background-color: var(--interactive-accent) !important;
+  color: var(--text-on-accent-inverted) !important;
+}
+
+.chronos-timeline-container .vis-text {
+  color: var(--text-normal) !important;
+}
+
+.chronos-timeline-container .vis-line {
+  background-color: var(--interactive-accent) !important;
+  color: var(--interactive-accent) !important;
+}
+
+.chronos-timeline-container .vis-dot {
+  color: var(--interactive-accent) !important;
+}
