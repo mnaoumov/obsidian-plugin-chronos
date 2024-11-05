@@ -1,9 +1,12 @@
-import { WorkspaceLeaf, Plugin } from "obsidian";
-import { DataItem, DataSet } from "vis-timeline/standalone";
-import {
-  ChronosTimelineView,
-  VIEW_TYPE_CHRONOS_TIMELINE,
-} from "./views/ChronosTimelineView";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Plugin, setTooltip } from "obsidian";
+import { DataSet, Timeline } from "vis-timeline/standalone";
+
+import { ChronosMdParser } from "./lib/ChronosMdParser";
+
+import { Marker } from "./types";
+
+import crosshairsSvg from "./assets/icons/crosshairs.svg";
 
 interface ChronosPluginSettings {
   mySetting: string;
@@ -13,90 +16,22 @@ const DEFAULT_SETTINGS: ChronosPluginSettings = {
   mySetting: "default",
 };
 
-// TODO: MAKE SURE TO DETACH LEAVES ON PLUGIN REMOVAL
-// Unless explicitly removed, any leaves that a plugin add to the workspace remain even after the plugin is disabled. Plugins are responsible for removing any leaves they add to the workspace.
-
-// To remove a leaf from the workspace, call detach() on the leaf you want to remove. You can also remove all leaves of a certain type, by using detachLeavesOfType().
-
 export default class ChronosPlugin extends Plugin {
   settings: ChronosPluginSettings;
 
-  onload = async () => {
-    // await this.loadSettings();
-
+  async onload() {
     console.log("Loading Chronos Timeline Plugin");
-    // custom css
+    await this.loadSettings();
 
-    this.registerView(
-      VIEW_TYPE_CHRONOS_TIMELINE,
-      (leaf) => new ChronosTimelineView(leaf)
+    this.registerMarkdownCodeBlockProcessor(
+      "chronos",
+      this.renderChronosBlock.bind(this)
     );
-
-    this.addCommand({
-      id: "timeline",
-      name: "Render timeline",
-      callback: () => {
-        const items = new DataSet([
-          {
-            id: 1,
-            start: new Date(700, 7, 15),
-            end: new Date(700, 8, 2), // end is optional
-            content: "Trajectory A",
-          },
-          {
-            id: 2,
-            start: new Date(700, 8, 1),
-            // end: new Date(700, 8, 15), // end is optional
-            content: "Trajectory B",
-          },
-          {
-            id: 3,
-            start: new Date(700, 9, 1),
-            // end: new Date(700, 8, 15), // end is optional
-            content: "Trajectory C",
-          },
-          {
-            id: "A",
-            start: new Date(700, 8, 1),
-            end: new Date(700, 9, 15),
-            content: "Period A",
-            type: "background",
-          },
-        ]);
-
-        this.activateView(items);
-      },
-    });
-  };
-
-  async activateView(timelineData?: DataSet<DataItem>) {
-    const { workspace } = this.app;
-
-    let leaf: WorkspaceLeaf | null = null;
-    const leaves = workspace.getLeavesOfType(VIEW_TYPE_CHRONOS_TIMELINE);
-
-    if (leaves.length > 0) {
-      // A leaf with our view already exists, use that
-      leaf = leaves[0];
-
-      if (timelineData) {
-        (leaf.view as ChronosTimelineView).updateTimeline(timelineData);
-      }
-    } else {
-      // Our view could not be found in the workspace, create a new leaf
-      // in the right sidebar for it
-      leaf = workspace.getRightLeaf(false) as WorkspaceLeaf;
-      await leaf.setViewState({
-        type: VIEW_TYPE_CHRONOS_TIMELINE,
-        active: true,
-      });
-    }
-
-    // "Reveal" the leaf in case it is in a collapsed sidebar
-    workspace.revealLeaf(leaf);
   }
 
-  onunload = () => {};
+  onunload() {
+    // Detach any leaves if necessary
+  }
 
   async loadSettings() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
@@ -104,5 +39,88 @@ export default class ChronosPlugin extends Plugin {
 
   async saveSettings() {
     await this.saveData(this.settings);
+  }
+
+  private renderChronosBlock(source: string, el: HTMLElement) {
+    const parser = new ChronosMdParser();
+    const container = el.createEl("div", { cls: "chronos-timeline-container" });
+
+    try {
+      const { items, markers } = parser.parse(source);
+      const timeline = this.initializeTimeline(container, items, markers);
+
+      timeline.fit();
+    } catch (error) {
+      this.handleParseError(error, container);
+    }
+  }
+
+  private initializeTimeline(
+    container: HTMLElement,
+    items: any[],
+    markers: Marker[]
+  ) {
+    const options = {
+      zoomable: true,
+      selectable: true,
+      // TODO
+      //   editable: true,
+      minHeight: "150px",
+      //   make it not default to current date, which causes flicker
+      // setting to 1 year range, so default viewis at month level in most widths
+      start: new Date("2023-01-01"),
+      end: new Date("2024-01-01"),
+    };
+
+    const timeline = new Timeline(container, items, options);
+
+    // set default view to fit min/max range of dataset
+    setTimeout(() => {
+      timeline.fit();
+    }, 0);
+
+    this.addMarkers(timeline, markers);
+    this.setupTooltip(timeline, items);
+    this.createRefitButton(container, timeline);
+
+    return timeline;
+  }
+
+  private addMarkers(timeline: Timeline, markers: any[]) {
+    markers.forEach((marker, index) => {
+      const id = `marker_${index}`;
+      timeline.addCustomTime(new Date(marker.start), id);
+      timeline.setCustomTimeMarker(marker.content, id, true);
+    });
+  }
+
+  private setupTooltip(timeline: Timeline, items: any[]) {
+    timeline.on("itemover", (event) => {
+      const itemId = event.item;
+      if (itemId) {
+        const item = new DataSet(items).get(itemId) as any;
+        const text = item.content as string;
+        setTooltip(event.event.target, text);
+      }
+    });
+  }
+
+  private createRefitButton(container: HTMLElement, timeline: Timeline) {
+    const refitButton = container.createEl("button", {
+      cls: "chronos-timeline-refit-button",
+    });
+    refitButton.innerHTML = crosshairsSvg;
+    setTooltip(refitButton, "Fit all");
+    refitButton.addEventListener("click", () => timeline.fit());
+  }
+
+  private handleParseError(error: any, container: HTMLElement) {
+    const errorMsgContainer = container.createEl("div", {
+      cls: "chronos-error-message-container",
+    });
+    errorMsgContainer.innerHTML = `<p>Error(s) parsing chronos markdown. Hover to edit:<ul> ${error.message
+      .split(";;")
+      .map((msg: string) => `<li>${msg}</li>`)
+      .join("")}</ul></p>`;
   }
 }
