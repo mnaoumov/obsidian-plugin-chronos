@@ -1,7 +1,8 @@
 /* Style to user's theme */
 
 :root {
-  --semi-gray: hsla(0, 0%, 50%, 0.15);
+  --chronos-semi-gray: hsla(0, 0%, 50%, 0.15);
+  --chronos-opacity: 0.2;
 }
 
 .workspace-leaf-content[data-type="chronos-timeline"] .view-content {
@@ -30,7 +31,7 @@
 }
 
 .chronos-timeline-container .chronos-timeline-refit-button:hover {
-  background-color: var(--semi-gray);
+  background-color: var(--chronos-semi-gray);
   fill: currentColor;
 }
 
@@ -43,19 +44,22 @@
   padding: 1rem 1.5rem;
 }
 
+.vis-custom-time,
 .vis-custom-time-marker {
-  color: white;
-  background-color: white;
+  color: var(--color-base-00) !important;
+  background-color: var(--color-base-70) !important;
 }
 
 .chronos-timeline-container .vis-item.vis-background {
-  background-color: hsla(var(--color-accent-hsl), 0.2) !important;
+  background-color: hsla(var(--color-accent-hsl), 0.2);
   color: var(--text-on-primary);
 }
 
 .chronos-timeline-container .vis-item.vis-selected {
-  border-color: var(--color-accent);
+  border-color: var(--color-base-100);
+  background-color: var(--color-accent) !important;
 }
+
 .chronos-timeline-container .vis-item {
   border-radius: var(--radius-s) !important;
   border-color: var(--color-accent);
@@ -63,20 +67,22 @@
 
 .chronos-timeline-container .vis-box,
 .chronos-timeline-container .vis-range {
+  cursor: pointer;
   border-color: var(--background-secondary);
-  background-color: var(--interactive-accent) !important;
-  color: var(--text-on-accent-inverted) !important;
+  background-color: var(--interactive-accent);
+  color: var(--text-on-accent-inverted);
 }
 
 .chronos-timeline-container .vis-text {
   color: var(--text-normal) !important;
 }
 
+/* .chronos-timeline-container .vis-line {
+	color: var(--interactive-accent) !important;
+} */
+
+.chronos-timeline-container .vis-dot,
 .chronos-timeline-container .vis-line {
   background-color: var(--interactive-accent) !important;
-  color: var(--interactive-accent) !important;
-}
-
-.chronos-timeline-container .vis-dot {
   color: var(--interactive-accent) !important;
 }

@@ -66,7 +66,7 @@ export default class ChronosPlugin extends Plugin {
       // TODO
       //   editable: true,
       minHeight: "150px",
-      //   make it not default to current date, which causes flicker
+      // make it not default to current date, which causes flicker
       // setting to 1 year range, so default viewis at month level in most widths
       start: new Date("2023-01-01"),
       end: new Date("2024-01-01"),
