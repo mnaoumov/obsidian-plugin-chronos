@@ -15,6 +15,11 @@ export class ChronosMdParser {
       line = line.trim();
       const lineNumber = i + 1;
 
+      // skip comments
+      if (line.startsWith("#")) {
+        return;
+      }
+
       if (line.startsWith("-")) {
         this.parseEvent(line, lineNumber);
       } else if (line.startsWith("@")) {

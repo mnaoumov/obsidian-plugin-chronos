@@ -3,7 +3,6 @@ import { Plugin, setTooltip } from "obsidian";
 import { DataSet, Timeline } from "vis-timeline/standalone";
 
 import { ChronosMdParser } from "./lib/ChronosMdParser";
-
 import { Marker } from "./types";
 
 import crosshairsSvg from "./assets/icons/crosshairs.svg";
@@ -22,7 +21,6 @@ export default class ChronosPlugin extends Plugin {
   async onload() {
     console.log("Loading Chronos Timeline Plugin");
     await this.loadSettings();
-
     this.registerMarkdownCodeBlockProcessor(
       "chronos",
       this.renderChronosBlock.bind(this)
@@ -30,11 +28,11 @@ export default class ChronosPlugin extends Plugin {
   }
 
   onunload() {
-    // Detach any leaves if necessary
+    // Clean up if necessary
   }
 
   async loadSettings() {
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+    this.settings = { ...DEFAULT_SETTINGS, ...(await this.loadData()) };
   }
 
   async saveSettings() {
@@ -47,9 +45,7 @@ export default class ChronosPlugin extends Plugin {
 
     try {
       const { items, markers } = parser.parse(source);
-      const timeline = this.initializeTimeline(container, items, markers);
-
-      timeline.fit();
+      this.initializeTimeline(container, items, markers);
     } catch (error) {
       this.handleParseError(error, container);
     }
@@ -60,25 +56,10 @@ export default class ChronosPlugin extends Plugin {
     items: any[],
     markers: Marker[]
   ) {
-    const options = {
-      zoomable: true,
-      selectable: true,
-      // TODO
-      //   editable: true,
-      minHeight: "150px",
-      // make it not default to current date, which causes flicker
-      // setting to 1 year range, so default viewis at month level in most widths
-      start: new Date("2023-01-01"),
-      end: new Date("2024-01-01"),
-    };
-
+    const options = this.getTimelineOptions();
     const timeline = new Timeline(container, items, options);
 
-    // set default view to fit min/max range of dataset
-    setTimeout(() => {
-      timeline.fit();
-    }, 0);
-
+    setTimeout(() => timeline.fit(), 0); // Ensure fit after rendering
     this.addMarkers(timeline, markers);
     this.setupTooltip(timeline, items);
     this.createRefitButton(container, timeline);
@@ -86,7 +67,17 @@ export default class ChronosPlugin extends Plugin {
     return timeline;
   }
 
-  private addMarkers(timeline: Timeline, markers: any[]) {
+  private getTimelineOptions() {
+    return {
+      zoomable: true,
+      selectable: true,
+      minHeight: "150px",
+      start: new Date("2023-01-01"),
+      end: new Date("2024-01-01"),
+    };
+  }
+
+  private addMarkers(timeline: Timeline, markers: Marker[]) {
     markers.forEach((marker, index) => {
       const id = `marker_${index}`;
       timeline.addCustomTime(new Date(marker.start), id);
@@ -99,7 +90,7 @@ export default class ChronosPlugin extends Plugin {
       const itemId = event.item;
       if (itemId) {
         const item = new DataSet(items).get(itemId) as any;
-        const text = item.content as string;
+        const text = item?.content ?? "";
         setTooltip(event.event.target, text);
       }
     });
@@ -114,13 +105,19 @@ export default class ChronosPlugin extends Plugin {
     refitButton.addEventListener("click", () => timeline.fit());
   }
 
-  private handleParseError(error: any, container: HTMLElement) {
+  private handleParseError(error: Error, container: HTMLElement) {
     const errorMsgContainer = container.createEl("div", {
       cls: "chronos-error-message-container",
     });
-    errorMsgContainer.innerHTML = `<p>Error(s) parsing chronos markdown. Hover to edit:<ul> ${error.message
+    errorMsgContainer.innerHTML = `<p>Error(s) parsing chronos markdown. Hover to edit:<ul> ${this.formatErrorMessages(
+      error
+    )}</ul></p>`;
+  }
+
+  private formatErrorMessages(error: Error): string {
+    return error.message
       .split(";;")
-      .map((msg: string) => `<li>${msg}</li>`)
-      .join("")}</ul></p>`;
+      .map((msg) => `<li>${msg}</li>`)
+      .join("");
   }
 }
