@@ -168,6 +168,7 @@ export class ChronosMdParser {
 
   private _clearGroups() {
     this.groups = [];
+    this.groupMap = {};
   }
 
   private _resetVars() {
