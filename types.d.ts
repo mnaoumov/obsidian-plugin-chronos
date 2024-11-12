@@ -1,5 +1,4 @@
 // shim
-import "vis-timeline";
 import { DataItem } from "vis-timeline";
 
 export interface Marker {
@@ -11,10 +10,14 @@ interface ChronosDataItem extends DataItem {
   cDescription?: string; // for event tooltips
 }
 
+export type Group = { id: number; content: string };
+
 export interface ParseResult {
   items: ChronosDataItem[];
   markers: Marker[];
+  groups: Group[];
 }
+
 declare module "vis-timeline" {
   /** Add method override bc this method exists and is documented, but not registered in type definitions from library */
   interface Timeline {

@@ -44,6 +44,10 @@
   padding: 1rem 1.5rem;
 }
 
+.vis-label {
+  color: var(--color-base-100) !important;
+}
+
 .vis-custom-time,
 .vis-custom-time-marker {
   color: var(--color-base-00) !important;
@@ -56,8 +60,8 @@
 }
 
 .chronos-timeline-container .vis-item.vis-selected {
-  border-color: var(--color-base-100);
-  background-color: var(--color-base-100) !important;
+  border-color: var(--color-base-70);
+  background-color: var(--color-base-70) !important;
   color: var(--color-base-00) !important;
 }
 

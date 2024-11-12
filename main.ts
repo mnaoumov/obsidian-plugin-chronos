@@ -3,7 +3,7 @@ import { Plugin, setTooltip } from "obsidian";
 import { DataSet, Timeline } from "vis-timeline/standalone";
 
 import { ChronosMdParser } from "./lib/ChronosMdParser";
-import { Marker } from "./types";
+import { Marker, Group } from "./types";
 
 import crosshairsSvg from "./assets/icons/crosshairs.svg";
 
@@ -44,8 +44,12 @@ export default class ChronosPlugin extends Plugin {
     const container = el.createEl("div", { cls: "chronos-timeline-container" });
 
     try {
-      const { items, markers } = parser.parse(source);
-      this.initializeTimeline(container, items, markers);
+      const { items, markers, groups } = parser.parse(source);
+
+      if (!el.dataset.initialized) {
+        this.initializeTimeline(container, items, markers, groups);
+        el.dataset.initialized = "true";
+      }
     } catch (error) {
       this.handleParseError(error, container);
     }
@@ -54,16 +58,16 @@ export default class ChronosPlugin extends Plugin {
   private initializeTimeline(
     container: HTMLElement,
     items: any[],
-    markers: Marker[]
+    markers: Marker[],
+    groups: Group[]
   ) {
     const options = this.getTimelineOptions();
-    const timeline = new Timeline(container, items, options);
+    const timeline = this.createTimeline(container, items, groups, options);
 
-    setTimeout(() => timeline.fit(), 0); // Ensure fit after rendering
     this.addMarkers(timeline, markers);
     this.setupTooltip(timeline, items);
     this.createRefitButton(container, timeline);
-
+    this.adjustZoomAfterRender(timeline);
     return timeline;
   }
 
@@ -71,10 +75,35 @@ export default class ChronosPlugin extends Plugin {
     return {
       zoomable: true,
       selectable: true,
-      minHeight: "150px",
+      minHeight: "200px",
       start: new Date("2023-01-01"),
       end: new Date("2024-01-01"),
     };
+  }
+
+  private createTimeline(
+    container: HTMLElement,
+    items: any[],
+    groups: Group[],
+    options: any
+  ) {
+    let timeline: Timeline;
+    if (groups.length) {
+      const { updatedItems, updatedGroups } = this.assignItemsToGroups(
+        items,
+        groups
+      );
+      timeline = new Timeline(
+        container,
+        updatedItems,
+        this.createDataGroups(updatedGroups),
+        options
+      );
+    } else {
+      timeline = new Timeline(container, items, options);
+    }
+
+    return timeline;
   }
 
   private addMarkers(timeline: Timeline, markers: Marker[]) {
@@ -85,11 +114,17 @@ export default class ChronosPlugin extends Plugin {
     });
   }
 
+  private createDataGroups(rawGroups: Group[]) {
+    return new DataSet<Group>(
+      rawGroups.map((g) => ({ id: g.id, content: g.content }))
+    );
+  }
+
   private setupTooltip(timeline: Timeline, items: any[]) {
     timeline.on("itemover", (event) => {
       const itemId = event.item;
+      const item = new DataSet(items).get(itemId) as any;
       if (itemId) {
-        const item = new DataSet(items).get(itemId) as any;
         const text = item?.cDescription ?? "";
         setTooltip(event.event.target, text);
       }
@@ -103,6 +138,52 @@ export default class ChronosPlugin extends Plugin {
     refitButton.innerHTML = crosshairsSvg;
     setTooltip(refitButton, "Fit all");
     refitButton.addEventListener("click", () => timeline.fit());
+  }
+
+  private assignItemsToGroups(items: any[], groups: Group[]) {
+    let updatedItems = items;
+    let updatedGroups = groups;
+
+    // Only add group properties if there are groups
+    const DEFAULT_GROUP_ID = 0; // group ids start at 1 in parser
+    if (groups.length > 0) {
+      // Ensure the default group exists
+      if (!groups.some((group) => group.id === DEFAULT_GROUP_ID)) {
+        groups.push({ id: DEFAULT_GROUP_ID, content: " " });
+      }
+
+      // Assign ungrouped items to the default group
+      updatedItems = items.map((item) => {
+        if (!item.group) {
+          item.group = DEFAULT_GROUP_ID; // Assign ungrouped items to the default group
+        }
+        return item;
+      });
+
+      updatedGroups = groups; // Update the groups if necessary
+    }
+
+    return { updatedItems, updatedGroups };
+  }
+
+  private adjustZoomAfterRender(timeline: Timeline) {
+    setTimeout(() => this.zoomOutMinimally(timeline), 200);
+    setTimeout(() => timeline.fit(), 300);
+  }
+
+  private zoomOutMinimally(timeline: Timeline) {
+    const range = timeline.getWindow();
+    const zoomFactor = 1.05;
+    const newStart = new Date(
+      range.start.valueOf() -
+        ((range.end.valueOf() - range.start.valueOf()) * (zoomFactor - 1)) / 2
+    );
+    const newEnd = new Date(
+      range.end.valueOf() +
+        ((range.end.valueOf() - range.start.valueOf()) * (zoomFactor - 1)) / 2
+    );
+
+    timeline.setWindow(newStart, newEnd, { animation: true });
   }
 
   private handleParseError(error: Error, container: HTMLElement) {

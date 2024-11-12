@@ -1,10 +1,12 @@
-import { ParseResult, Marker, ChronosDataItem } from "../types";
+import { ParseResult, Marker, ChronosDataItem, Group } from "../types";
 import { Color, Opacity } from "../enums";
 
 export class ChronosMdParser {
   private errors: string[] = [];
   private items: ChronosDataItem[] = [];
   private markers: Marker[] = [];
+  private groups: Group[] = [];
+  private groupMap: { [key: string]: number } = {};
 
   parse(data: string): ParseResult {
     const lines = data.split("\n");
@@ -37,8 +39,9 @@ export class ChronosMdParser {
 
     const items = this.items;
     const markers = this.markers;
+    const groups = this.groups;
 
-    return { items, markers };
+    return { items, markers, groups };
   }
 
   private _parseEvent(line: string, lineNumber: number) {
@@ -46,14 +49,18 @@ export class ChronosMdParser {
       /^-\s*\[(\d{4}-\d{2}-\d{2})(?:~(\d{4}-\d{2}-\d{2}))?\]\s*(#(\w+))?\s*(\{([^}]+)\})?\s*(.*?)(?:\s*\|\s*(.*))?$/
     );
     const eventMatch = line.match(eventLineRegex);
+
     if (eventMatch) {
-      const [, start, end, , color, , group, content, description] = eventMatch;
+      const [, start, end, , color, , groupName, content, description] =
+        eventMatch;
+
+      const groupId = groupName ? this._getOrCreateGroupId(groupName) : null;
 
       this.items.push({
         content: content || "",
         start,
         end: end ? end : undefined,
-        group: group || undefined,
+        group: groupId,
         style: color
           ? `background-color: ${this._mapToObsidianColor(
               color as Color,
@@ -73,14 +80,16 @@ export class ChronosMdParser {
     );
     const periodMatch = line.match(periodLineRegex);
     if (periodMatch) {
-      const [, start, end, , color, , group, content] = periodMatch;
+      const [, start, end, , color, , groupName, content] = periodMatch;
+
+      const groupId = groupName ? this._getOrCreateGroupId(groupName) : null;
 
       this.items.push({
         content: content || "",
         start,
         end,
         type: "background",
-        group: group || undefined,
+        group: groupId,
         style: color
           ? `background-color: ${this._mapToObsidianColor(
               color as Color,
@@ -105,6 +114,17 @@ export class ChronosMdParser {
       });
     } else {
       this._addParserError(lineNumber, `Invalid marker format: ${line}`);
+    }
+  }
+
+  private _getOrCreateGroupId(groupName: string): number {
+    if (this.groupMap[groupName] !== undefined) {
+      return this.groupMap[groupName];
+    } else {
+      const groupId = this.groups.length + 1;
+      this.groups.push({ id: groupId, content: groupName });
+      this.groupMap[groupName] = groupId;
+      return groupId;
     }
   }
 
@@ -146,9 +166,14 @@ export class ChronosMdParser {
     this.markers = [];
   }
 
+  private _clearGroups() {
+    this.groups = [];
+  }
+
   private _resetVars() {
     this._clearErrors();
     this._clearItems();
     this._clearMarkers();
+    this._clearGroups();
   }
 }
