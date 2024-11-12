@@ -1,10 +1,9 @@
-import { DataItem } from "vis-timeline/standalone";
-import { ParseResult, Marker } from "../types";
+import { ParseResult, Marker, ChronosDataItem } from "../types";
 import { Color, Opacity } from "../enums";
 
 export class ChronosMdParser {
   private errors: string[] = [];
-  private items: DataItem[] = [];
+  private items: ChronosDataItem[] = [];
   private markers: Marker[] = [];
 
   parse(data: string): ParseResult {
@@ -15,17 +14,18 @@ export class ChronosMdParser {
       line = line.trim();
       const lineNumber = i + 1;
 
-      // skip comments
       if (line.startsWith("#")) {
+        // Comment (skip)
         return;
-      }
-
-      if (line.startsWith("-")) {
-        this.parseEvent(line, lineNumber);
+      } else if (line.startsWith("-")) {
+        // Event
+        this._parseEvent(line, lineNumber);
       } else if (line.startsWith("@")) {
-        this.parsePeriod(line, lineNumber);
+        // Period
+        this._parsePeriod(line, lineNumber);
       } else if (line.startsWith("=")) {
-        this.parseMarker(line, lineNumber);
+        // Marker
+        this._parseMarker(line, lineNumber);
       } else if (line) {
         this._addParserError(lineNumber, `Unrecognized format: ${line}`);
       }
@@ -41,8 +41,7 @@ export class ChronosMdParser {
     return { items, markers };
   }
 
-  private parseEvent(line: string, lineNumber: number) {
-    // Extended regex to capture color, group, and description
+  private _parseEvent(line: string, lineNumber: number) {
     const eventLineRegex = new RegExp(
       /^-\s*\[(\d{4}-\d{2}-\d{2})(?:~(\d{4}-\d{2}-\d{2}))?\]\s*(#(\w+))?\s*(\{([^}]+)\})?\s*(.*?)(?:\s*\|\s*(.*))?$/
     );
@@ -56,26 +55,25 @@ export class ChronosMdParser {
         end: end ? end : undefined,
         group: group || undefined,
         style: color
-          ? `background-color: ${this.mapToObsidianColor(
+          ? `background-color: ${this._mapToObsidianColor(
               color as Color,
               Opacity.Solid
             )};`
           : undefined,
-        title: description || undefined,
+        cDescription: description || undefined,
       });
     } else {
       this._addParserError(lineNumber, `Invalid event format: ${line}`);
     }
   }
 
-  private parsePeriod(line: string, lineNumber: number) {
+  private _parsePeriod(line: string, lineNumber: number) {
     const periodLineRegex = new RegExp(
-      /^@\s*\[(\d{4}-\d{2}-\d{2})~(\d{4}-\d{2}-\d{2})?\]\s*(#(\w+))?\s*(\{([^}]+)\})?\s*(.*?)(?:\s*\|\s*(.*))?$/
+      /^@\s*\[(\d{4}-\d{2}-\d{2})~(\d{4}-\d{2}-\d{2})?\]\s*(#(\w+))?\s*(\{([^}]+)\})?\s*(.*?)$/
     );
     const periodMatch = line.match(periodLineRegex);
     if (periodMatch) {
-      const [, start, end, , color, , group, content, description] =
-        periodMatch;
+      const [, start, end, , color, , group, content] = periodMatch;
 
       this.items.push({
         content: content || "",
@@ -84,19 +82,18 @@ export class ChronosMdParser {
         type: "background",
         group: group || undefined,
         style: color
-          ? `background-color: ${this.mapToObsidianColor(
+          ? `background-color: ${this._mapToObsidianColor(
               color as Color,
               Opacity.Opaque
             )};`
           : undefined,
-        title: description || undefined,
       });
     } else {
       this._addParserError(lineNumber, `Invalid period format: ${line}`);
     }
   }
 
-  private parseMarker(line: string, lineNumber: number) {
+  private _parseMarker(line: string, lineNumber: number) {
     const markerMatch = line.match(/^=\s*\[(\d{4}-\d{2}-\d{2})\]\s*(.*)?$/);
 
     if (markerMatch) {
@@ -111,7 +108,7 @@ export class ChronosMdParser {
     }
   }
 
-  private mapToObsidianColor(color: Color, opacity: Opacity) {
+  private _mapToObsidianColor(color: Color, opacity: Opacity) {
     const colorMap = {
       red: "red",
       green: "green",

@@ -57,7 +57,8 @@
 
 .chronos-timeline-container .vis-item.vis-selected {
   border-color: var(--color-base-100);
-  background-color: var(--color-accent) !important;
+  background-color: var(--color-base-100) !important;
+  color: var(--color-base-00) !important;
 }
 
 .chronos-timeline-container .vis-item {
@@ -76,10 +77,6 @@
 .chronos-timeline-container .vis-text {
   color: var(--text-normal) !important;
 }
-
-/* .chronos-timeline-container .vis-line {
-	color: var(--interactive-accent) !important;
-} */
 
 .chronos-timeline-container .vis-dot,
 .chronos-timeline-container .vis-line {

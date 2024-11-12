@@ -7,8 +7,12 @@ export interface Marker {
   content: string;
 }
 
+interface ChronosDataItem extends DataItem {
+  cDescription?: string; // for event tooltips
+}
+
 export interface ParseResult {
-  items: DataItem[];
+  items: ChronosDataItem[];
   markers: Marker[];
 }
 declare module "vis-timeline" {
