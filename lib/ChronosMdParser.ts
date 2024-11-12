@@ -46,7 +46,7 @@ export class ChronosMdParser {
 
   private _parseEvent(line: string, lineNumber: number) {
     const eventLineRegex = new RegExp(
-      /^-\s*\[(\d{4}-\d{2}-\d{2})(?:~(\d{4}-\d{2}-\d{2}))?\]\s*(#(\w+))?\s*(\{([^}]+)\})?\s*(.*?)(?:\s*\|\s*(.*))?$/
+      /^-\s*\[(.*?)(?:~(.*?))?\]\s*(#(\w+))?\s*(\{([^}]+)\})?\s*(.*?)(?:\s*\|\s*(.*))?$/
     );
     const eventMatch = line.match(eventLineRegex);
 
@@ -58,8 +58,8 @@ export class ChronosMdParser {
 
       this.items.push({
         content: content || "",
-        start,
-        end: end ? end : undefined,
+        start: this._parseDate(start),
+        end: end ? this._parseDate(end) : undefined,
         group: groupId,
         style: color
           ? `background-color: ${this._mapToObsidianColor(
@@ -76,9 +76,10 @@ export class ChronosMdParser {
 
   private _parsePeriod(line: string, lineNumber: number) {
     const periodLineRegex = new RegExp(
-      /^@\s*\[(\d{4}-\d{2}-\d{2})~(\d{4}-\d{2}-\d{2})?\]\s*(#(\w+))?\s*(\{([^}]+)\})?\s*(.*?)$/
+      /^@\s*\[(.*?)(?:~(.*?))?\]\s*(#(\w+))?\s*(\{([^}]+)\})?\s*(.*?)$/
     );
     const periodMatch = line.match(periodLineRegex);
+
     if (periodMatch) {
       const [, start, end, , color, , groupName, content] = periodMatch;
 
@@ -86,8 +87,8 @@ export class ChronosMdParser {
 
       this.items.push({
         content: content || "",
-        start,
-        end,
+        start: this._parseDate(start),
+        end: end ? this._parseDate(end) : undefined,
         type: "background",
         group: groupId,
         style: color
@@ -103,13 +104,13 @@ export class ChronosMdParser {
   }
 
   private _parseMarker(line: string, lineNumber: number) {
-    const markerMatch = line.match(/^=\s*\[(\d{4}-\d{2}-\d{2})\]\s*(.*)?$/);
+    const markerMatch = line.match(/^=\s*\[(.*?)]\s*(.*)?$/);
 
     if (markerMatch) {
       const [, start, content] = markerMatch;
 
       this.markers.push({
-        start,
+        start: this._parseDate(start),
         content: content || "",
       });
     } else {
@@ -150,6 +151,33 @@ export class ChronosMdParser {
       : `rgba(var(--color-${colorMap[color]}-rgb), var(--chronos-opacity))`;
   }
 
+  private _parseDate(dateString: string): string {
+    // Handle "lazy dates"
+    const parts = dateString.split(/[-T: ]/); // Split date components
+    const [
+      year,
+      month = "01",
+      day = "01",
+      hour = "00",
+      minute = "00",
+      second = "00",
+    ] = parts;
+
+    // Check if a valid year was provided
+    if (!year || year.length !== 4) {
+      throw new Error(`Invalid date format: ${dateString}`);
+    }
+
+    // Construct the datetime string
+    return `${year}-${month.padStart(2, "0")}-${day.padStart(
+      2,
+      "0"
+    )}T${hour.padStart(2, "0")}:${minute.padStart(2, "0")}:${second.padStart(
+      2,
+      "0"
+    )}`;
+  }
+
   private _addParserError(lineNumber: number, message: string) {
     this.errors.push(`Line ${lineNumber + 1}: ${message}`);
   }
@@ -168,7 +196,6 @@ export class ChronosMdParser {
 
   private _clearGroups() {
     this.groups = [];
-    this.groupMap = {};
   }
 
   private _resetVars() {

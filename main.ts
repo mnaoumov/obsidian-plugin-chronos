@@ -125,7 +125,9 @@ export default class ChronosPlugin extends Plugin {
       const itemId = event.item;
       const item = new DataSet(items).get(itemId) as any;
       if (itemId) {
-        const text = item?.cDescription ?? "";
+        const text = `${item?.content}${
+          item?.cDescription ? " : " + item?.cDescription : ""
+        }`;
         setTooltip(event.event.target, text);
       }
     });
