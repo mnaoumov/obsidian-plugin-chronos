@@ -1,4 +1,4 @@
-/* Style to user's theme */
+/* Maximize user's custom theme in styling */
 
 :root {
   --chronos-semi-gray: hsla(0, 0%, 50%, 0.15);
@@ -88,7 +88,10 @@
   color: var(--interactive-accent) !important;
 }
 
-/* Ensure code editor button is always on top, in chronos blocks only as to not interfer with other configuration */
+/* Ensure code editor button is always on top and easy to find with pointer, 
+   in chronos blocks only as to not interfer with normal Obsidian behavior 
+ */
 .block-language-chronos ~ .edit-block-button {
   z-index: 999;
+  cursor: pointer !important;
 }

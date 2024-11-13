@@ -1,26 +1,29 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Plugin, setTooltip } from "obsidian";
+import { Plugin, App, Setting, setTooltip, PluginSettingTab } from "obsidian";
 import { DataSet, Timeline } from "vis-timeline/standalone";
 
 import { ChronosMdParser } from "./lib/ChronosMdParser";
-import { Marker, Group } from "./types";
+import { Marker, Group, ChronosPluginSettings } from "./types";
 
 import crosshairsSvg from "./assets/icons/crosshairs.svg";
-
-interface ChronosPluginSettings {
-  mySetting: string;
-}
+import { smartDateRange } from "./util/smartDateRange";
+import { knownLocales } from "./util/knownLocales";
 
 const DEFAULT_SETTINGS: ChronosPluginSettings = {
-  mySetting: "default",
+  selectedLocale: "en",
 };
 
 export default class ChronosPlugin extends Plugin {
   settings: ChronosPluginSettings;
 
   async onload() {
-    console.log("Loading Chronos Timeline Plugin");
-    await this.loadSettings();
+    console.log("Loading Chronos Timeline Plugin...");
+
+    // load settings
+    this.settings = (await this.loadData()) || DEFAULT_SETTINGS;
+    this.addSettingTab(new ChronosPluginSettingTab(this.app, this));
+
+    // register markdown processor
     this.registerMarkdownCodeBlockProcessor(
       "chronos",
       this.renderChronosBlock.bind(this)
@@ -28,7 +31,8 @@ export default class ChronosPlugin extends Plugin {
   }
 
   onunload() {
-    // Clean up if necessary
+    // Uncomment for debugging in development
+    // console.log("Unloading Chronos Timeline Plugin...");
   }
 
   async loadSettings() {
@@ -125,9 +129,11 @@ export default class ChronosPlugin extends Plugin {
       const itemId = event.item;
       const item = new DataSet(items).get(itemId) as any;
       if (itemId) {
-        const text = `${item?.content} (${item.start.split("-")[0]})${
-          item?.cDescription ? " : " + item?.cDescription : ""
-        }`;
+        const text = `${item?.content} (${smartDateRange(
+          item.start,
+          item.end,
+          this.settings.selectedLocale
+        )})${item?.cDescription ? " \n " + item?.cDescription : ""}`;
         setTooltip(event.event.target, text);
       }
     });
@@ -146,14 +152,14 @@ export default class ChronosPlugin extends Plugin {
     let updatedItems = items;
     let updatedGroups = groups;
 
-    // Only add group properties if there are groups
+    // only add group properties if there are groups
     const DEFAULT_GROUP_ID = 0;
     if (groups.length > 0) {
       if (!groups.some((group) => group.id === DEFAULT_GROUP_ID)) {
         groups.push({ id: DEFAULT_GROUP_ID, content: " " });
       }
 
-      // Assign ungrouped items to the default group
+      // assign ungrouped items to the default group
       updatedItems = items.map((item) => {
         if (!item.group) {
           item.group = DEFAULT_GROUP_ID;
@@ -201,5 +207,62 @@ export default class ChronosPlugin extends Plugin {
       .split(";;")
       .map((msg) => `<li>${msg}</li>`)
       .join("");
+  }
+}
+
+class ChronosPluginSettingTab extends PluginSettingTab {
+  plugin: ChronosPlugin;
+
+  constructor(app: App, plugin: ChronosPlugin) {
+    super(app, plugin);
+    this.plugin = plugin;
+  }
+
+  display(): void {
+    const { containerEl } = this;
+
+    containerEl.empty();
+
+    containerEl.createEl("h2", { text: "Locale Settings" });
+
+    const supportedLocales: string[] = [];
+    const supportedLocalesNativeDisplayNames: Intl.DisplayNames[] = [];
+
+    // get locales SUPPORTED by the user's environment, based off list of possible locales
+    knownLocales.forEach((locale) => {
+      if (Intl.DateTimeFormat.supportedLocalesOf(locale).length) {
+        supportedLocales.push(locale);
+      }
+    });
+
+    // get native display names of each locale
+    supportedLocales.forEach((locale) => {
+      const nativeDisplayNames = new Intl.DisplayNames([locale], {
+        type: "language",
+      });
+      supportedLocalesNativeDisplayNames.push(
+        nativeDisplayNames.of(locale) as unknown as Intl.DisplayNames
+      );
+    });
+
+    new Setting(containerEl)
+      .setName("Select Locale")
+      .setDesc("Choose a locale for date formatting when hovering on events")
+      .addDropdown((dropdown) => {
+        supportedLocales.forEach((locale, i) => {
+          const localeDisplayName = supportedLocalesNativeDisplayNames[i];
+          const label = `${localeDisplayName} (${locale})`;
+          dropdown.addOption(locale, label);
+        });
+
+        const savedLocale =
+          this.plugin.settings.selectedLocale || supportedLocales[0];
+        dropdown.setValue(savedLocale);
+
+        dropdown.onChange((value) => {
+          this.plugin.settings.selectedLocale = value;
+          this.plugin.saveData(this.plugin.settings);
+        });
+      });
   }
 }

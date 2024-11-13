@@ -10,6 +10,10 @@ interface ChronosDataItem extends DataItem {
   cDescription?: string; // for event tooltips
 }
 
+export interface ChronosPluginSettings {
+  selectedLocale: string;
+}
+
 export type Group = { id: number; content: string };
 
 export interface ParseResult {
