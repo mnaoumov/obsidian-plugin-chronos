@@ -44,66 +44,94 @@ export class ChronosMdParser {
     return { items, markers, groups };
   }
 
+  private _parseLineWithRegex(line: string, regex: RegExp, lineNumber: number) {
+    const match = line.match(regex);
+    if (!match) {
+      this._addParserError(lineNumber, `Invalid format: ${line}`);
+      return null;
+    }
+    return match;
+  }
+
+  // Helper to construct item object with common properties
+  private _constructItem(
+    content: string,
+    start: string,
+    end: string | undefined,
+    groupName: string | undefined,
+    color: string | undefined,
+    lineNumber: number,
+    type: "default" | "background" = "default"
+  ) {
+    this._ensureChronologicalDates(start, end, lineNumber);
+
+    const groupId = groupName ? this._getOrCreateGroupId(groupName) : null;
+
+    return {
+      content: content || "",
+      start: this._parseDate(start),
+      end: end ? this._parseDate(end) : undefined,
+      group: groupId,
+      style: color
+        ? `background-color: ${this._mapToObsidianColor(
+            color as Color,
+            type === "background" ? Opacity.Opaque : Opacity.Solid
+          )};`
+        : undefined,
+      ...(type === "background" ? { type: "background" } : {}),
+    };
+  }
+
+  // Refactored _parseEvent method
   private _parseEvent(line: string, lineNumber: number) {
-    const eventLineRegex = new RegExp(
-      /^-\s*\[(.*?)(?:~(.*?))?\]\s*(#(\w+))?\s*(\{([^}]+)\})?\s*(.*?)(?:\s*\|\s*(.*))?$/
+    const eventLineRegex =
+      /^-\s*\[(.*?)(?:~(.*?))?\]\s*(#(\w+))?\s*(\{([^}]+)\})?\s*(.*?)(?:\s*\|\s*(.*))?$/;
+    const eventMatch = this._parseLineWithRegex(
+      line,
+      eventLineRegex,
+      lineNumber
     );
-    const eventMatch = line.match(eventLineRegex);
 
     if (eventMatch) {
       const [, start, end, , color, , groupName, content, description] =
         eventMatch;
-
-      this._ensureChronologicalDates(start, end, lineNumber);
-
-      const groupId = groupName ? this._getOrCreateGroupId(groupName) : null;
-
       this.items.push({
-        content: content || "",
-        start: this._parseDate(start),
-        end: end ? this._parseDate(end) : undefined,
-        group: groupId,
-        style: color
-          ? `background-color: ${this._mapToObsidianColor(
-              color as Color,
-              Opacity.Solid
-            )};`
-          : undefined,
+        ...this._constructItem(
+          content,
+          start,
+          end,
+          groupName,
+          color,
+          lineNumber
+        ),
         cDescription: description || undefined,
       });
-    } else {
-      this._addParserError(lineNumber, `Invalid event format: ${line}`);
     }
   }
 
+  // Refactored _parsePeriod method
   private _parsePeriod(line: string, lineNumber: number) {
-    const periodLineRegex = new RegExp(
-      /^@\s*\[(.*?)(?:~(.*?))?\]\s*(#(\w+))?\s*(\{([^}]+)\})?\s*(.*?)$/
+    const periodLineRegex =
+      /^@\s*\[(.*?)(?:~(.*?))?\]\s*(#(\w+))?\s*(\{([^}]+)\})?\s*(.*?)$/;
+    const periodMatch = this._parseLineWithRegex(
+      line,
+      periodLineRegex,
+      lineNumber
     );
-    const periodMatch = line.match(periodLineRegex);
 
     if (periodMatch) {
       const [, start, end, , color, , groupName, content] = periodMatch;
-
-      this._ensureChronologicalDates(start, end, lineNumber);
-
-      const groupId = groupName ? this._getOrCreateGroupId(groupName) : null;
-
-      this.items.push({
-        content: content || "",
-        start: this._parseDate(start),
-        end: end ? this._parseDate(end) : undefined,
-        type: "background",
-        group: groupId,
-        style: color
-          ? `background-color: ${this._mapToObsidianColor(
-              color as Color,
-              Opacity.Opaque
-            )};`
-          : undefined,
-      });
-    } else {
-      this._addParserError(lineNumber, `Invalid period format: ${line}`);
+      this.items.push(
+        this._constructItem(
+          content,
+          start,
+          end,
+          groupName,
+          color,
+          lineNumber,
+          "background"
+        )
+      );
     }
   }
 
@@ -184,7 +212,7 @@ export class ChronosMdParser {
 
   private _ensureChronologicalDates(
     start: string,
-    end: string,
+    end: string | undefined,
     lineNumber: number
   ) {
     if (start && end && new Date(start) > new Date(end)) {
