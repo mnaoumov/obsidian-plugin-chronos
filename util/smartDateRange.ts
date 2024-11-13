@@ -140,7 +140,9 @@ export function smartDateRange(
     if (specialAsianLocales.includes(locale)) {
       return `${start.getFullYear()}${_getYearCharacter(
         locale
-      )}${month}${start.getDate()}~${end.getDate()}${_getDayCharacter(locale)}`;
+      )}${" "}${month}${" "}${start.getDate()}~${end.getDate()}${_getDayCharacter(
+        locale
+      )}`;
     }
     return `${month} ${start.getDate()} - ${end.getDate()}, ${start.getFullYear()}`;
   } else if (end) {
