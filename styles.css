@@ -87,3 +87,8 @@
   background-color: var(--interactive-accent) !important;
   color: var(--interactive-accent) !important;
 }
+
+/* Ensure code editor button is always on top, in chronos blocks only as to not interfer with other configuration */
+.block-language-chronos ~ .edit-block-button {
+  z-index: 999;
+}

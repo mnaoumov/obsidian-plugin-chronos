@@ -125,7 +125,7 @@ export default class ChronosPlugin extends Plugin {
       const itemId = event.item;
       const item = new DataSet(items).get(itemId) as any;
       if (itemId) {
-        const text = `${item?.content}${
+        const text = `${item?.content} (${item.start.split("-")[0]})${
           item?.cDescription ? " : " + item?.cDescription : ""
         }`;
         setTooltip(event.event.target, text);
@@ -147,9 +147,8 @@ export default class ChronosPlugin extends Plugin {
     let updatedGroups = groups;
 
     // Only add group properties if there are groups
-    const DEFAULT_GROUP_ID = 0; // group ids start at 1 in parser
+    const DEFAULT_GROUP_ID = 0;
     if (groups.length > 0) {
-      // Ensure the default group exists
       if (!groups.some((group) => group.id === DEFAULT_GROUP_ID)) {
         groups.push({ id: DEFAULT_GROUP_ID, content: " " });
       }
@@ -157,12 +156,12 @@ export default class ChronosPlugin extends Plugin {
       // Assign ungrouped items to the default group
       updatedItems = items.map((item) => {
         if (!item.group) {
-          item.group = DEFAULT_GROUP_ID; // Assign ungrouped items to the default group
+          item.group = DEFAULT_GROUP_ID;
         }
         return item;
       });
 
-      updatedGroups = groups; // Update the groups if necessary
+      updatedGroups = groups;
     }
 
     return { updatedItems, updatedGroups };
