@@ -153,7 +153,7 @@ export class ChronosMdParser {
 
   private _parseDate(dateString: string): string {
     // Handle "lazy dates"
-    const parts = dateString.split(/[-T: ]/); // Split date components
+    const parts = dateString.split(/[-T: ]/);
     const [
       year,
       month = "01",
@@ -167,8 +167,8 @@ export class ChronosMdParser {
     if (!year || year.length !== 4) {
       throw new Error(`Invalid date format: ${dateString}`);
     }
+    // TODO: validate other components of date time
 
-    // Construct the datetime string
     return `${year}-${month.padStart(2, "0")}-${day.padStart(
       2,
       "0"
