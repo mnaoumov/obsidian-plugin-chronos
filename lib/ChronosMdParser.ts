@@ -54,6 +54,8 @@ export class ChronosMdParser {
       const [, start, end, , color, , groupName, content, description] =
         eventMatch;
 
+      this._ensureChronologicalDates(start, end, lineNumber);
+
       const groupId = groupName ? this._getOrCreateGroupId(groupName) : null;
 
       this.items.push({
@@ -82,6 +84,8 @@ export class ChronosMdParser {
 
     if (periodMatch) {
       const [, start, end, , color, , groupName, content] = periodMatch;
+
+      this._ensureChronologicalDates(start, end, lineNumber);
 
       const groupId = groupName ? this._getOrCreateGroupId(groupName) : null;
 
@@ -176,6 +180,19 @@ export class ChronosMdParser {
       2,
       "0"
     )}`;
+  }
+
+  private _ensureChronologicalDates(
+    start: string,
+    end: string,
+    lineNumber: number
+  ) {
+    if (start && end && new Date(start) > new Date(end)) {
+      this._addParserError(
+        lineNumber,
+        `Start date (${start}) is after end date (${end}).`
+      );
+    }
   }
 
   private _addParserError(lineNumber: number, message: string) {
