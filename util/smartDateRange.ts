@@ -66,21 +66,39 @@
 // }
 
 // /** add day character for languages like Korean, Japanese and Chinese */
-// function _getDayCharacter(locale: string) {
-//   const lang = locale.match(/^[a-z]{2}/i)?.[0];
+function _getDayCharacter(locale: string) {
+  const lang = locale.match(/^[a-z]{2}/i)?.[0];
 
-//   switch (lang) {
-//     // Korean
-//     case "ko":
-//       return "일";
-//     // Chinese & Japanese
-//     case "ja":
-//     case "zh":
-//       return "日";
-//     default:
-//       return "";
-//   }
-// }
+  switch (lang) {
+    // Korean
+    case "ko":
+      return "일";
+    // Chinese & Japanese
+    case "ja":
+    case "zh":
+      return "日";
+    default:
+      return "";
+  }
+}
+
+function _getYearCharacter(locale: string) {
+  const lang = locale.match(/^[a-z]{2}/i)?.[0];
+
+  switch (lang) {
+    // Korean
+    case "ko":
+      return "년";
+    // Chinese & Japanese
+    case "ja":
+    case "zh":
+      return "年";
+    default:
+      return "";
+  }
+}
+
+const specialAsianLocales = ["ja", "ko", "zh"];
 
 export function smartDateRange(
   startDate: string,
@@ -119,6 +137,11 @@ export function smartDateRange(
       locale,
       monthOptions as Intl.DateTimeFormatOptions
     );
+    if (specialAsianLocales.includes(locale)) {
+      return `${start.getFullYear()}${_getYearCharacter(
+        locale
+      )}${month}${start.getDate()}~${end.getDate()}${_getDayCharacter(locale)}`;
+    }
     return `${month} ${start.getDate()} - ${end.getDate()}, ${start.getFullYear()}`;
   } else if (end) {
     // Different month/year case
