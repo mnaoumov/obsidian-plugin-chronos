@@ -95,3 +95,8 @@
   z-index: 999;
   cursor: pointer !important;
 }
+
+.vis-custom-time[title]::after {
+  content: attr(title);
+  display: none;
+}

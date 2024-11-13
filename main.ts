@@ -8,6 +8,7 @@ import { Marker, Group, ChronosPluginSettings } from "./types";
 import crosshairsSvg from "./assets/icons/crosshairs.svg";
 import { smartDateRange } from "./util/smartDateRange";
 import { knownLocales } from "./util/knownLocales";
+import { enDatestrToISO } from "./util/enDateStrToISO";
 
 const DEFAULT_SETTINGS: ChronosPluginSettings = {
   selectedLocale: "en",
@@ -107,6 +108,8 @@ export default class ChronosPlugin extends Plugin {
       timeline = new Timeline(container, items, options);
     }
 
+    setTimeout(() => this._updateTooltipCustomMarkers(container), 300);
+
     return timeline;
   }
 
@@ -115,6 +118,41 @@ export default class ChronosPlugin extends Plugin {
       const id = `marker_${index}`;
       timeline.addCustomTime(new Date(marker.start), id);
       timeline.setCustomTimeMarker(marker.content, id, true);
+      // remove native 'title' attribute - setting custom Obsidian tooltip  in _updateTooltipCustomMarkers
+    });
+  }
+
+  private _updateTooltipCustomMarkers(timelineContainer: HTMLElement) {
+    const customTimeMarkers =
+      timelineContainer.querySelectorAll(".vis-custom-time");
+    customTimeMarkers.forEach((m) => {
+      const titleText = m.getAttribute("title");
+
+      if (titleText) {
+        const date = smartDateRange(
+          enDatestrToISO(titleText),
+          null,
+          this.settings.selectedLocale
+        );
+        setTooltip(m as HTMLElement, date);
+        // custom markers have some kind of hammer function going that updates the tick. I want to listen for and kill native title change every tick
+        const observer = new MutationObserver((mutationsList, observer) => {
+          for (const mutation of mutationsList) {
+            // Check if the 'title' attribute was changed
+            if (
+              mutation.type === "attributes" &&
+              mutation.attributeName === "title"
+            ) {
+              // Remove the 'title' attribute
+              m.removeAttribute("title");
+            }
+          }
+        });
+
+        observer.observe(m, {
+          attributes: true,
+        });
+      }
     });
   }
 
