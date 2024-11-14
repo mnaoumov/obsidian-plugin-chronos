@@ -20,13 +20,13 @@ Chronos parses markdown in `chronos` code blocks
 ```
 ````
 
-The first character of each line in your `chronos` block determines the item type. Modifiers can be used to change the color or group membership of certain items.
-
 ## Dates
 
 - lazy dates OK
 
 ## Item types
+
+The first character of each line in your `chronos` block determines the item type. Certain can be modified with colors and group membership (see [Modifiers](#modifiers))
 
 ### Comments (`#`)
 
