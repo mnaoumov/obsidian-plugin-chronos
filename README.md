@@ -4,7 +4,7 @@ Chronos is a custom markdown syntax used for visualizing interactive timelines i
 
 Powered by the [vis-timeline](https://www.npmjs.com/package/vis-timeline) library.
 
-![video demo](./docs/ex-main-2.mp4)
+[![Demo video](https://cdn.loom.com/sessions/thumbnails/8bdbd947a55c4e28a3ed1a40f98f704b-13b6abde0eafa1c7-full-play.gif)](https://www.loom.com/share/8bdbd947a55c4e28a3ed1a40f98f704b?sid=0c5c21a1-8b17-41ea-ad29-d1efaa478a36)
 
 ## Basic usage
 
