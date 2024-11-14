@@ -1,13 +1,18 @@
 //TODO: IMPLEMENT RTL SUPPORT
-// const rtlLocales = [
-//   "ar", // Arabic
-//   "fa", // Persian (Farsi)
-//   "he", // Hebrew
-//   "ks", // Kashmiri
-//   "ku", // Kurdish
-//   "ur", // Urdu
-//   "yi", // Yiddish
-// ];
+const rtlLocales = [
+  "ar", // Arabic
+  "fa", // Persian (Farsi)
+  "he", // Hebrew
+  "ks", // Kashmiri
+  "ku", // Kurdish
+  "ur", // Urdu
+  "yi", // Yiddish
+];
+
+// Seaparating RTL and LTR for handling formatting
+export function isRtl(locale: string): boolean {
+  return rtlLocales.includes(locale);
+}
 
 const ltrLocales = [
   "af", // Afrikaans
@@ -88,4 +93,4 @@ const ltrLocales = [
   "zu", // Zulu
 ];
 
-export const knownLocales = [...ltrLocales];
+export const knownLocales = [...ltrLocales, ...rtlLocales].sort();
