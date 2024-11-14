@@ -72,7 +72,12 @@ export default class ChronosPlugin extends Plugin {
     this.addMarkers(timeline, markers);
     this.setupTooltip(timeline, items);
     this.createRefitButton(container, timeline);
-    this.adjustZoomAfterRender(timeline);
+    if (groups.length) {
+      // weird workaround for properly renering timelines with groups
+      setTimeout(() => this.zoomOutMinimally(timeline), 150);
+    }
+    // make sure all items in view by default
+    setTimeout(() => timeline.fit(), 100);
     return timeline;
   }
 
@@ -81,8 +86,6 @@ export default class ChronosPlugin extends Plugin {
       zoomable: true,
       selectable: true,
       minHeight: "200px",
-      start: new Date("2023-01-01"),
-      end: new Date("2024-01-01"),
     };
   }
 
@@ -107,8 +110,8 @@ export default class ChronosPlugin extends Plugin {
     } else {
       timeline = new Timeline(container, items, options);
     }
-
-    setTimeout(() => this._updateTooltipCustomMarkers(container), 300);
+    // workaround for overriding native titles in custom markers
+    setTimeout(() => this._updateTooltipCustomMarkers(container), 100);
 
     return timeline;
   }
@@ -118,7 +121,6 @@ export default class ChronosPlugin extends Plugin {
       const id = `marker_${index}`;
       timeline.addCustomTime(new Date(marker.start), id);
       timeline.setCustomTimeMarker(marker.content, id, true);
-      // remove native 'title' attribute - setting custom Obsidian tooltip  in _updateTooltipCustomMarkers
     });
   }
 
@@ -187,8 +189,8 @@ export default class ChronosPlugin extends Plugin {
   }
 
   private assignItemsToGroups(items: any[], groups: Group[]) {
-    let updatedItems = items;
-    let updatedGroups = groups;
+    let updatedItems = [...items];
+    let updatedGroups = [...groups];
 
     // only add group properties if there are groups
     const DEFAULT_GROUP_ID = 0;
@@ -211,14 +213,9 @@ export default class ChronosPlugin extends Plugin {
     return { updatedItems, updatedGroups };
   }
 
-  private adjustZoomAfterRender(timeline: Timeline) {
-    setTimeout(() => this.zoomOutMinimally(timeline), 200);
-    setTimeout(() => timeline.fit(), 300);
-  }
-
   private zoomOutMinimally(timeline: Timeline) {
     const range = timeline.getWindow();
-    const zoomFactor = 1.05;
+    const zoomFactor = 1.02; // SLIGHT zoom out
     const newStart = new Date(
       range.start.valueOf() -
         ((range.end.valueOf() - range.start.valueOf()) * (zoomFactor - 1)) / 2
@@ -261,7 +258,7 @@ class ChronosPluginSettingTab extends PluginSettingTab {
 
     containerEl.empty();
 
-    containerEl.createEl("h2", { text: "Locale Settings" });
+    containerEl.createEl("h2", { text: "Preferred Locale" });
 
     const supportedLocales: string[] = [];
     const supportedLocalesNativeDisplayNames: Intl.DisplayNames[] = [];
