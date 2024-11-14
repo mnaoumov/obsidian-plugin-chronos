@@ -24,9 +24,11 @@ Chronos parses markdown in `chronos` code blocks
 
 Chronos can visualize dates from the year, month, date, hour, minute or second level, using syntax `YYYY-MM-DDThh:mm:ss`.
 
-The only required part of a date is the year (`YYYY`). Month and date default to `01` if not specified. Hour, minute and second dfault to `00` if not specified.
+The only required part of a date is the year (`YYYY`).
 
-Valid examples
+Month and date default to `01` if not specified. Hour, minute and second default to `00` if not specified.
+
+Examples
 
 ```
 - [2020] A year
@@ -36,6 +38,8 @@ Valid examples
 - [2020-02-28T12:30] A minute
 - [2020-02-28T12:30:09] A second
 ```
+
+![date example](./docs/ex-dates-optimize.gif)
 
 Date ranges are separated by a tilde `~`
 
