@@ -1,96 +1,174 @@
-# Obsidian Sample Plugin
+Chronos is a custom markdown syntax used for visualizing interactive timelines inline in your Obsidian notes. Under the hood it uses the [vis-timeline](https://www.npmjs.com/package/vis-timeline) library.
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+Timelines are styled to adapt to your Obsidian theme.
 
-This project uses TypeScript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in TypeScript Definition format, which contains TSDoc comments describing what it does.
+TODO: INSERT GIF
 
-**Note:** The Obsidian API is still in early alpha and is subject to change at any time!
+# Basic usage
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open Sample Modal" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and output 'click' to the console.
-- Registers a global interval which logs 'setInterval' to the console.
+Chronos parses markdown in `chronos` code blocks
 
-## First time developing plugins?
+````markdown
+```chronos
 
-Quick starting guide for new plugin devs:
+<your chronos items here>
 
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `main.ts` to `main.js`.
-- Make changes to `main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
+```
+````
 
-## Releasing new releases
+# Syntax Overview
 
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
+The first character of each line in your `chronos` block determines the item type. Modifiers can be used to change the color or group membership of certain items.
 
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
+## Dates
 
-## Adding your plugin to the community plugin list
+- lazy dates OK
 
-- Check the [plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
+## Item types
 
-## How to use
+### Comments (`#`)
 
-- Clone this repo.
-- Make sure your NodeJS is at least v16 (`node --version`).
-- `npm i` or `yarn` to install dependencies.
-- `npm run dev` to start compilation in watch mode.
+Chronos will ignore any line that starts with `#`. You can use this to write comments to yourself or block out items.
 
-## Manually installing the plugin
+Example
 
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
+```
+# this line is a comment, it will be ignored by chronos
 
-## Improve code quality with eslint (optional)
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code. 
-- To use eslint with this project, make sure to install eslint from terminal:
-  - `npm install -g eslint`
-- To use eslint to analyze this project use this command:
-  - `eslint main.ts`
-  - eslint will then create a report with suggestions for code improvement by file and line number.
-- If your source code is in a folder, such as `src`, you can use eslint with this command to analyze all files in that folder:
-  - `eslint .\src\`
+- [1789~1799] French Revolution
+- [1791~1804] Haitian Revolution
+- [1776] American Declaration of Independence
 
-## Funding URL
+# the event below will not render, since it has been commented out
+# - [1939~1945] World War II
 
-You can include funding URLs where people who use your plugin can financially support it.
-
-The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
-
-```json
-{
-    "fundingUrl": "https://buymeacoffee.com"
-}
 ```
 
-If you have multiple URLs, you can also do:
+![comment example](./docs/ex-comment.png)
 
-```json
-{
-    "fundingUrl": {
-        "Buy Me a Coffee": "https://buymeacoffee.com",
-        "GitHub Sponsor": "https://github.com/sponsors",
-        "Patreon": "https://www.patreon.com/"
-    }
-}
+### Events (`-`)
+
+Events can include a single date or a date range.
+
+#### Single Date Event
+
 ```
 
-## API Documentation
+- [Date] Event Name | Description
 
-See https://github.com/obsidianmd/obsidian-api
+```
+
+- YYYY-MM-DD: The date of the event
+- Event Name (optional): The name or title of the event (optional)
+- Description (optional): Shows up in a tooltip when you hover on an event
+
+Example
+
+#### Date Range Event:
+
+The date range is represented with a tilde (~) between the start and end dates.
+
+```
+
+- [Date~Date] Event Name | Description
+
+```
+
+Example
+
+### Periods (`@`)
+
+Periods represent a span of time in which multiple events occur. Periods are shown with a background color and are represented using the @ symbol. Periods can cover a broad time frame.
+
+```
+
+@ [YYYY-MM-DD~YYYY-MM-DD] Period Name
+
+```
+
+    YYYY-MM-DD~YYYY-MM-DD: The start and end dates of the period.
+    Period Name: The title or name of the period.
+
+Periods allow you to group related events and give them context by highlighting the time frame.
+
+### Markers (`=`)
+
+Markers are used to highlight a significant event that defines the start or end of a time period. Markers are typically placed on key dates and represent important milestones.
+
+```
+= [YYYY-MM-DD] Marker Name
+```
+
+    YYYY-MM-DD: The specific date of the marker.
+    Marker Name: The title or description of the marker.
+
+Example Timeline
+
+```
+
+\`\`\`chronos
+
+- [1945-07-17] Potsdam Conference | where post-WWII Europe is divided
+- [1947-03-12] Truman Doctrine | committing the U.S. to containing communism
+- [1948-06-24~1949-05-12] Berlin Blockade | and Airlift in response to Soviet actions in Berlin
+- [1949-04-04] Formation of NATO
+
+@ [1947-01-01~1953-12-31] Early Cold War
+
+- [1950-06-25~1953-07-27] Korean War | between North and South Korea
+- [1955-05-14] Warsaw Pact | in response to NATO
+- [1957-10-04] Sputnik launched | initiating the Space Race
+- [1961-04-17] Bay of Pigs Invasion | in Cuba
+
+@ [1953-01-01~1962-12-31] #red Height of Tensions
+
+- [1962-10-16~1962-10-28] Cuban Missile Crisis | a peak confrontation between the U.S. and USSR
+- [1963-08-05] Partial Nuclear Test Ban Treaty signed
+- [1969-07-20] Apollo 11 Moon landing | U.S. wins the Space Race
+- [1972-05-26] SALT I signed | first Strategic Arms Limitation Treaty
+
+@ [1963-01-01~1979-12-31] Détente Period
+
+- [1979-12-24~1989-02-15] Soviet-Afghan War | straining Soviet resources
+- [1983-03-23] Reagan announces the Strategic Defense Initiative (SDI)
+- [1986-04-26] Chernobyl nuclear disaster
+- [1987-12-08] INF Treaty | signed, eliminating intermediate-range nuclear missiles
+
+@ [1980-01-01~1989-12-31] Late Cold War
+
+- [1989-11-09] Fall of the Berlin Wall | symbolizing the end of Cold War tensions
+- [1991-07-31] START I Treaty signed | further arms reduction
+- [1991-12-26] Dissolution of the Soviet Union | officially ending the Cold War
+
+= [1991-12-26] End of the Cold War
+\`\`\`
+
+```
+
+In this example, periods are used to group events in distinct phases (e.g., "Early Cold War," "Height of Tensions"), events have specific dates or ranges (e.g., "Potsdam Conference" on 1945-07-17, "Berlin Blockade" from 1948-06-24 to 1949-05-12), and the end of a major period is highlighted with a marker (= [1991-12-26] End of the Cold War).
+
+### Modifiers
+
+#### Colors `#`
+
+This modifer can be used on:
+
+- Events (`-`)
+- Periods (`@`)
+
+#### Groups `{}`
+
+This modifer can be used on:
+
+- Events (`-`)
+- Periods (`@`)
+
+## Advanced example
+
+- colors, groups, events, markers, periods
+
+## Actions
+
+### Edit
+
+### Refit
