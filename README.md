@@ -2,9 +2,9 @@
 
 Chronos is a custom markdown syntax used for visualizing interactive timelines inline in your Obsidian notes. Timelines are styled to adapt to your Obsidian theme.
 
-This plugin is powered by the [vis-timeline](https://www.npmjs.com/package/vis-timeline) library.
+Powered by the [vis-timeline](https://www.npmjs.com/package/vis-timeline) library.
 
-TODO: INSERT GIF
+![video demo](./docs/ex-main-2.mp4)
 
 ## Basic usage
 
