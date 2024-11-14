@@ -20,13 +20,34 @@ Chronos parses markdown in `chronos` code blocks
 ```
 ````
 
-## Dates
+### A note on dates
 
-- lazy dates OK
+Chronos can visualize dates from the year, month, date, hour, minute or second level, using syntax `YYYY-MM-DDThh:mm:ss`.
 
-## Item types
+The only required part of a date is the year (`YYYY`). Month and date default to `01` if not specified. Hour, minute and second dfault to `00` if not specified.
 
-The first character of each line in your `chronos` block determines the item type. Certain can be modified with colors and group membership (see [Modifiers](#modifiers))
+Valid examples
+
+```
+- [2020] A year
+- [2020-02] A month
+- [2020-02-28] A day
+- [2020-02-28T12] An hour
+- [2020-02-28T12:30] A minute
+- [2020-02-28T12:30:09] A second
+```
+
+Date ranges are separated by a tilde `~`
+
+```
+- [2020~2024]
+```
+
+Examples:
+
+```
+- [2020~2024]
+```
 
 ### Comments (`#`)
 
@@ -48,6 +69,10 @@ Example
 
 ![comment example](./docs/ex-comment.png)
 
+## Item types
+
+The first character of each line in your `chronos` block determines the item type. Certain items can be modified with colors and group membership (see [Modifiers](#modifiers))
+
 ### Events (`-`)
 
 Events can include a single date or a date range.
@@ -68,7 +93,7 @@ Example
 
 #### Date Range Event:
 
-The date range is represented with a tilde (~) between the start and end dates.
+The date range is represented with a tilde (`~`) between the start and end dates.
 
 ```
 
