@@ -1,22 +1,24 @@
-Chronos is a custom markdown syntax used for visualizing interactive timelines inline in your Obsidian notes. Under the hood it uses the [vis-timeline](https://www.npmjs.com/package/vis-timeline) library.
+## Chronos Timeline - a plugin for Obsidian
 
-Timelines are styled to adapt to your Obsidian theme.
+Chronos is a custom markdown syntax used for visualizing interactive timelines inline in your Obsidian notes. Timelines are styled to adapt to your Obsidian theme.
+
+This plugin is powered by the [vis-timeline](https://www.npmjs.com/package/vis-timeline) library.
 
 TODO: INSERT GIF
 
-# Basic usage
+## Basic usage
+
+# Syntax Overview
 
 Chronos parses markdown in `chronos` code blocks
 
 ````markdown
 ```chronos
 
-<your chronos items here>
+<your chronos timeline items here>
 
 ```
 ````
-
-# Syntax Overview
 
 The first character of each line in your `chronos` block determines the item type. Modifiers can be used to change the color or group membership of certain items.
 
@@ -73,6 +75,12 @@ The date range is represented with a tilde (~) between the start and end dates.
 - [Date~Date] Event Name | Description
 
 ```
+
+Example
+
+#### events with descriptions
+
+You can add additional information to an event by adding a pipe `|` after the Event name. This text will appear when you hover on an event.
 
 Example
 
