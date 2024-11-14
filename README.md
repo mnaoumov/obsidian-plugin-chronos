@@ -1,4 +1,4 @@
-## Chronos Timeline - a plugin for Obsidian
+# Chronos Timeline - a plugin for Obsidian
 
 Chronos is a custom markdown syntax used for visualizing interactive timelines inline in your Obsidian notes. Timelines are styled to adapt to your Obsidian theme.
 
