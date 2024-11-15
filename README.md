@@ -8,12 +8,27 @@ Powered by the [vis-timeline](https://www.npmjs.com/package/vis-timeline) librar
 
 ## Quickstart
 
-After installin g the Chronos Timeline plugin, copy the full contents of [this cheatsheet](./docs/chronos-cheatsheet.md) and paste it into a file in your vault to play with examples
+Create timelines in your notes by opening a `chronos` codeblock and adding items
+
+````markdown
+```chronos
+- [1789~1799] French Revolution
+- [1791~1804] Haitian Revolution
+- [1776] American Declaration of Independence
+```
+````
+
+![quickstart example](./docs/ex-comment.png)
+
+### Cheatsheet
+
+After installing the Chronos Timeline plugin, paste the contents of [this cheatsheet](./docs/chronos-cheatsheet.md) into a file in your vault to play with examples
 
 ## Contents
 
 - [Chronos Timeline - Interactive timelines for Obsidian](#chronos-timeline---interactive-timelines-for-obsidian)
   - [Quickstart](#quickstart)
+    - [Cheatsheet](#cheatsheet)
   - [Contents](#contents)
 - [Syntax Overview](#syntax-overview)
   - [A note on dates](#a-note-on-dates)
