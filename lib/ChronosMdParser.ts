@@ -142,7 +142,7 @@ export class ChronosMdParser {
       const [, start, content] = markerMatch;
 
       this.markers.push({
-        start: this._parseDate(start),
+        start: this._parseDate(start).toISOString(),
         content: content || "",
       });
     } else {
@@ -183,9 +183,12 @@ export class ChronosMdParser {
       : `rgba(var(--color-${colorMap[color]}-rgb), var(--chronos-opacity))`;
   }
 
-  private _parseDate(dateString: string): string {
-    // Handle "lazy dates"
-    const parts = dateString.split(/[-T: ]/);
+  private _parseDate(dateString: string): Date {
+    // Handle "lazy dates" and BCE
+    const isBCE = dateString.startsWith("-");
+
+    const parts = dateString.replace(/^-/, "").split(/[-T: ]/);
+
     const [
       year,
       month = "01",
@@ -195,19 +198,22 @@ export class ChronosMdParser {
       second = "00",
     ] = parts;
 
-    // Check if a valid year was provided
-    if (!year || year.length !== 4) {
+    if (!year) {
       throw new Error(`Invalid date format: ${dateString}`);
     }
-    // TODO: validate other components of date time
+    // TODO : add detailed error messages for other date components
 
-    return `${year}-${month.padStart(2, "0")}-${day.padStart(
-      2,
-      "0"
-    )}T${hour.padStart(2, "0")}:${minute.padStart(2, "0")}:${second.padStart(
-      2,
-      "0"
-    )}`;
+    const formattedYear = isBCE ? -parseInt(year, 10) : parseInt(year, 10);
+
+    // Return a Date object based on the parsed components
+    return new Date(
+      formattedYear,
+      parseInt(month, 10) - 1, // month is 0-based in JS
+      parseInt(day, 10),
+      parseInt(hour, 10),
+      parseInt(minute, 10),
+      parseInt(second, 10)
+    );
   }
 
   private _ensureChronologicalDates(
@@ -215,11 +221,15 @@ export class ChronosMdParser {
     end: string | undefined,
     lineNumber: number
   ) {
-    if (start && end && new Date(start) > new Date(end)) {
-      this._addParserError(
-        lineNumber,
-        `Start date (${start}) is after end date (${end}).`
-      );
+    if (start && end) {
+      const startDate = this._parseDate(start);
+      const endDate = this._parseDate(end);
+      if (startDate > endDate) {
+        this._addParserError(
+          lineNumber,
+          `Start date (${start}) is after end date (${end}).`
+        );
+      }
     }
   }
 

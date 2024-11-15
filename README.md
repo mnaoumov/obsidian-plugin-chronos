@@ -1,6 +1,8 @@
 # Chronos Timeline - a plugin for Obsidian
 
-Chronos is a custom markdown syntax used for visualizing interactive timelines inline in your Obsidian notes. Timelines are styled to adapt to your Obsidian theme.
+Chronos is a custom markdown syntax used for visualizing interactive timelines inline in your Obsidian notes.
+
+Timelines are styled to adapt to your Obsidian theme.
 
 Powered by the [vis-timeline](https://www.npmjs.com/package/vis-timeline) library.
 
@@ -8,19 +10,38 @@ Powered by the [vis-timeline](https://www.npmjs.com/package/vis-timeline) librar
 
 ## Basic usage
 
+- [Chronos Timeline - a plugin for Obsidian](#chronos-timeline---a-plugin-for-obsidian)
+  - [Basic usage](#basic-usage)
+- [Syntax Overview](#syntax-overview)
+  - [A note on dates](#a-note-on-dates)
+  - [Comments (`#`)](#comments-)
+- [Item types](#item-types)
+  - [Events (`-`)](#events--)
+    - [Single Date Event](#single-date-event)
+    - [Events with start and end dates](#events-with-start-and-end-dates)
+    - [Events with descriptions](#events-with-descriptions)
+  - [Periods `@`](#periods-)
+  - [Markers `=`](#markers-)
+  - [Modifiers](#modifiers)
+    - [Colors `#`](#colors-)
+    - [Groups `{}`](#groups-)
+  - [Advanced example](#advanced-example)
+- [Actions](#actions)
+  - [Edit](#edit)
+  - [Refit](#refit)
+- [Localization](#localization)
+
 # Syntax Overview
 
 Chronos parses markdown in `chronos` code blocks
 
 ````markdown
 ```chronos
-
-<your chronos timeline items here>
-
+<chronos timeline items here>
 ```
 ````
 
-### A note on dates
+## A note on dates
 
 Chronos can visualize dates from the year, month, date, hour, minute or second level, using syntax `YYYY-MM-DDThh:mm:ss`.
 
@@ -41,25 +62,30 @@ Examples
 
 ![date example](./docs/ex-dates-optimize.gif)
 
-Date ranges are separated by a tilde `~`
+Date ranges are separated by a tilde `~`, and must be in chronological order
 
 ```
 - [2020~2024]
+- [2024-02-28~2024-05-11]
+- [2024-02-28T05:30~2024-02-28T08:30]
 ```
 
-Examples:
+You can signify BCE times with the negtive symbol (-)
 
 ```
-- [2020~2024]
+- [-1000]  <--- 1000 BCE
+- [-550~-20]  <--- 550 ~ 20 BCE
+- [-550~550]  <--- 550 BCE ~ 550 CE
 ```
 
-### Comments (`#`)
+## Comments (`#`)
 
 Chronos will ignore any line that starts with `#`. You can use this to write comments to yourself or block out items.
 
 Example
 
-```
+````markdown
+```chronos
 # this line is a comment, it will be ignored by chronos
 
 - [1789~1799] French Revolution
@@ -68,36 +94,34 @@ Example
 
 # the event below will not render, since it has been commented out
 # - [1939~1945] World War II
-
 ```
+````
 
 ![comment example](./docs/ex-comment.png)
 
-## Item types
+# Item types
 
 The first character of each line in your `chronos` block determines the item type. Certain items can be modified with colors and group membership (see [Modifiers](#modifiers))
 
-### Events (`-`)
+## Events (`-`)
 
-Events can include a single date or a date range.
+Events can include a single date or a date range. Event name and Description are optional.
 
-#### Single Date Event
+### Single Date Event
 
-```
+````markdown
+```chronos
 
 - [Date] Event Name | Description
 
 ```
-
-- YYYY-MM-DD: The date of the event
-- Event Name (optional): The name or title of the event (optional)
-- Description (optional): Shows up in a tooltip when you hover on an event
+````
 
 Example
 
-#### Date Range Event:
+### Events with start and end dates
 
-The date range is represented with a tilde (`~`) between the start and end dates.
+A date range is represented with a tilde (`~`) between the start and end dates.
 
 ```
 
@@ -107,28 +131,40 @@ The date range is represented with a tilde (`~`) between the start and end dates
 
 Example
 
-#### events with descriptions
+### Events with descriptions
 
-You can add additional information to an event by adding a pipe `|` after the Event name. This text will appear when you hover on an event.
+You can add additional information to an event by adding a pipe `|` after the Event name. This text will appear in a popup when you hover over an event.
 
-Example
+## Periods `@`
 
-### Periods (`@`)
+Periods represent a span of time and are displayed with a semi-transparent background. They are represented using the @ symbol. **Periods must be a range with a start and end date**.
 
-Periods represent a span of time in which multiple events occur. Periods are shown with a background color and are represented using the @ symbol. Periods can cover a broad time frame.
+```
+@ [Date~Date] Period Name
 
 ```
 
-@ [YYYY-MM-DD~YYYY-MM-DD] Period Name
+````markdown
+```chronos
+
+@ [-300~250] Yayoi Period
+- [-100] Introduction of rice cultivation
+- [-57] Japan’s first recorded contact with China
+
+@ [250~538] Kofun Period
+- [250] Construction of keyhole-shaped kofun burial mounds begins
+- [369] Yamato state sends envoys to Korea
+
+@ [710~794] Nara Period
+- [712] Compilation of the Kojiki, Japan’s earliest chronicle
+- [752] Great Buddha of Todai-ji is completed
 
 ```
-
-    YYYY-MM-DD~YYYY-MM-DD: The start and end dates of the period.
-    Period Name: The title or name of the period.
+````
 
 Periods allow you to group related events and give them context by highlighting the time frame.
 
-### Markers (`=`)
+## Markers `=`
 
 Markers are used to highlight a significant event that defines the start or end of a time period. Markers are typically placed on key dates and represent important milestones.
 
@@ -139,73 +175,122 @@ Markers are used to highlight a significant event that defines the start or end 
     YYYY-MM-DD: The specific date of the marker.
     Marker Name: The title or description of the marker.
 
-Example Timeline
+## Modifiers
+
+Modifiers can be added to **Events** (`-`) and **Periods** (`@`) with the following optional syntax.
 
 ```
-
-\`\`\`chronos
-
-- [1945-07-17] Potsdam Conference | where post-WWII Europe is divided
-- [1947-03-12] Truman Doctrine | committing the U.S. to containing communism
-- [1948-06-24~1949-05-12] Berlin Blockade | and Airlift in response to Soviet actions in Berlin
-- [1949-04-04] Formation of NATO
-
-@ [1947-01-01~1953-12-31] Early Cold War
-
-- [1950-06-25~1953-07-27] Korean War | between North and South Korea
-- [1955-05-14] Warsaw Pact | in response to NATO
-- [1957-10-04] Sputnik launched | initiating the Space Race
-- [1961-04-17] Bay of Pigs Invasion | in Cuba
-
-@ [1953-01-01~1962-12-31] #red Height of Tensions
-
-- [1962-10-16~1962-10-28] Cuban Missile Crisis | a peak confrontation between the U.S. and USSR
-- [1963-08-05] Partial Nuclear Test Ban Treaty signed
-- [1969-07-20] Apollo 11 Moon landing | U.S. wins the Space Race
-- [1972-05-26] SALT I signed | first Strategic Arms Limitation Treaty
-
-@ [1963-01-01~1979-12-31] Détente Period
-
-- [1979-12-24~1989-02-15] Soviet-Afghan War | straining Soviet resources
-- [1983-03-23] Reagan announces the Strategic Defense Initiative (SDI)
-- [1986-04-26] Chernobyl nuclear disaster
-- [1987-12-08] INF Treaty | signed, eliminating intermediate-range nuclear missiles
-
-@ [1980-01-01~1989-12-31] Late Cold War
-
-- [1989-11-09] Fall of the Berlin Wall | symbolizing the end of Cold War tensions
-- [1991-07-31] START I Treaty signed | further arms reduction
-- [1991-12-26] Dissolution of the Soviet Union | officially ending the Cold War
-
-= [1991-12-26] End of the Cold War
-\`\`\`
-
+- [Date-Date] #color {Group Name} Event Name | description
 ```
 
-In this example, periods are used to group events in distinct phases (e.g., "Early Cold War," "Height of Tensions"), events have specific dates or ranges (e.g., "Potsdam Conference" on 1945-07-17, "Berlin Blockade" from 1948-06-24 to 1949-05-12), and the end of a major period is highlighted with a marker (= [1991-12-26] End of the Cold War).
+The modifiers must go in this order: between Dates and Event Name, with color first if both color and group are used.
 
-### Modifiers
+### Colors `#`
 
-#### Colors `#`
+Available colors: `#red` | `#orange` | `#yellow` | `#green` | `#blue` | `purple` | `#pink` | `#cyan`
 
-This modifer can be used on:
+Example
 
-- Events (`-`)
-- Periods (`@`)
+````markdown
+```chronos
+- [1993~2001] #blue Clinton
+- [2001~2009] #red Bush
+- [2009~2017] #blue Obama
+- [2017~2021] #red Trump
+- [2021~2025] #blue Biden
 
-#### Groups `{}`
+- [2020-03-11~2023-05-11] #pink COVID19
+```
+````
 
-This modifer can be used on:
+![color example](./docs/ex-color.png)
 
-- Events (`-`)
-- Periods (`@`)
+### Groups `{}`
+
+Events and Periods can be grouped into "swimlanes" by specifying a Group name in curly brakcets `{}` after the date (or color if present). Group names are case sensitive and may contain spaces. The order of items does not matter.
+
+Example
+
+````markdown
+```chronos
+@ [1892-10-08~1941-08-31]{Marina Tsvetaeva} 1892-1941
+- [1916] {Marina Tsvetaeva} "Подруга"
+- [1928] {Marina Tsvetaeva}  "Поэма концов"
+- [1941] {Marina Tsvetaeva} "Записки о поэзии"
+
+@[1899-08-24~1986-06-14]{Jorge Luis Borges} 1899-1986
+- [1944] {Jorge Luis Borges} "Ficciones"
+- [1949] {Jorge Luis Borges} "El Aleph"
+- [1962] {Jorge Luis Borges} "Labyrinths"
+
+```
+````
+
+![groups example](./docs/ex-groups.png)
 
 ## Advanced example
 
-- colors, groups, events, markers, periods
+This example combines Events, Periods, Markers, Comments, Descriptions, Groups and colors
 
-## Actions
+````markdown
+```chronos
+- [1945-07-17] {Europe} Potsdam Conference | where post-WWII Europe is divided
+- [1947-03-12] {USA} Truman Doctrine | committing the U.S. to containing communism
+- [1948-06-24~1949-05-12] {Europe} Berlin Blockade | and Airlift in response to Soviet actions in Berlin
+- [1949-04-04] {Europe} Formation of NATO
 
-### Edit
+# Early Cold War
 
-### Refit
+@ [1957~1969] #cyan {SSSR} Space Race
+@ [1957~1969] #cyan {USA} Space Race
+- [1950-06-25~1953-07-27] {Asia} Korean War | between North and South Korea
+- [1955-05-14] {SSSR} Warsaw Pact | in response to NATO
+- [1957-10-04] #cyan {SSSR} Sputnik launched | initiating the Space Race
+- [1961-04-17] {Cuba} Bay of Pigs Invasion | in Cuba
+
+# Height of Tensions
+
+- [1962-10-16] {Cuba} Cuban Missile Crisis | a peak confrontation between the U.S. and USSR
+- [1963-08-05] {Global} Partial Nuclear Test Ban Treaty signed
+- [1969-07-20] #cyan {USA} Apollo 11 Moon landing | U.S. wins the Space Race
+- [1972-05-26] {Global} SALT I signed | first Strategic Arms Limitation Treaty
+
+# Détente Period
+
+- [1979-12-24~1989-02-15] {SSSR} Soviet-Afghan War | straining Soviet resources
+- [1983-03-23] {USA} Reagan announces the Strategic Defense Initiative (SDI)
+- [1986-04-26] {SSSR} Chernobyl nuclear disaster
+- [1987-12-08] {Global} INF Treaty | signed, eliminating intermediate-range nuclear missiles
+
+# Late Cold War
+
+- [1989-11-09] {Europe} Fall of the Berlin Wall | symbolizing the end of Cold War tensions
+- [1991-07-31] {Global} START I Treaty signed | further arms reduction
+- [1991-12-26] {SSSR} Dissolution of the Soviet Union | officially ending the Cold War
+
+= [1991-12-26] End of the Cold War
+
+```
+````
+
+![advanced example](./docs/ex-adv.png)
+
+# Actions
+
+## Edit
+
+To switch to edit mode for markdown, hover on the timeline then click the code icon that shows up in the upper right corner
+
+![edit example](./docs/ex-edit.png)
+
+## Refit
+
+Click the refit button (crosshairs icon) in the lower right to refit all items to the view window.
+
+![refit example](./docs/ex-refit.png)
+
+# Localization
+
+In the Chronos Timeline plugin settings, you can select your preferred language for displaying dates in event tooltips. Available language options depend on your system's language settings.
+
+![settings example](./docs/ex-settings.png)
