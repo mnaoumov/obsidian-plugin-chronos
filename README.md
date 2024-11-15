@@ -146,8 +146,7 @@ Periods represent a span of time and are displayed with a semi-transparent backg
 
 ````markdown
 ```chronos
-
-@ [-300~250] Yayoi Period
+@ [-300~250] #red Yayoi Period
 - [-100] Introduction of rice cultivation
 - [-57] Japan’s first recorded contact with China
 
@@ -155,14 +154,10 @@ Periods represent a span of time and are displayed with a semi-transparent backg
 - [250] Construction of keyhole-shaped kofun burial mounds begins
 - [369] Yamato state sends envoys to Korea
 
-@ [710~794] Nara Period
-- [712] Compilation of the Kojiki, Japan’s earliest chronicle
-- [752] Great Buddha of Todai-ji is completed
-
 ```
 ````
 
-Periods allow you to group related events and give them context by highlighting the time frame.
+![period example](/docs/ex-period.png)
 
 ## Markers `=`
 
@@ -193,7 +188,6 @@ Example
 
 ````markdown
 ```chronos
-- [1993~2001] #blue Clinton
 - [2001~2009] #red Bush
 - [2009~2017] #blue Obama
 - [2017~2021] #red Trump
