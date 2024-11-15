@@ -161,7 +161,7 @@ Periods represent a span of time and are displayed with a semi-transparent backg
 
 ## Markers `=`
 
-Markers are used to highlight a significant event that defines the start or end of a time period. Markers are typically placed on key dates and represent important milestones.
+Markers are used to highlight a significant event that defines the start or end of a time period. Markers are typically placed on key dates and represent important milestones. **Markers must be a single date**.
 
 ```
 = [YYYY-MM-DD] Marker Name
