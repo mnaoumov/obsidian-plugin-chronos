@@ -1,27 +1,31 @@
-# Chronos Timeline - a plugin for Obsidian
+# Chronos Timeline - Interactive timelines for Obsidian
 
-Chronos is a custom markdown syntax used for visualizing interactive timelines inline in your Obsidian notes.
-
-Timelines are styled to adapt to your Obsidian theme.
+Render interactive timelines in your Obsidian notes from simple markdown. Make sense of anything time related.
 
 Powered by the [vis-timeline](https://www.npmjs.com/package/vis-timeline) library.
 
 [![Demo video](./docs/ex-main.png)](https://www.youtube.com/embed/iYaA-QrdMQk?si=WdO7GX657ZKPfTxZ)
 
-## Basic usage
+## Quickstart
 
-- [Chronos Timeline - a plugin for Obsidian](#chronos-timeline---a-plugin-for-obsidian)
-  - [Basic usage](#basic-usage)
+After installin g the Chronos Timeline plugin, copy the full contents of [this cheatsheet](./docs/chronos-cheatsheet.md) and paste it into a file in your vault to play with examples
+
+## Contents
+
+- [Chronos Timeline - Interactive timelines for Obsidian](#chronos-timeline---interactive-timelines-for-obsidian)
+  - [Quickstart](#quickstart)
+  - [Contents](#contents)
 - [Syntax Overview](#syntax-overview)
   - [A note on dates](#a-note-on-dates)
-  - [Comments (`#`)](#comments-)
-- [Item types](#item-types)
+    - [Date ranges](#date-ranges)
+    - [BCE time](#bce-time)
   - [Events (`-`)](#events--)
-    - [Single Date Event](#single-date-event)
+    - [Events with a single date](#events-with-a-single-date)
     - [Events with start and end dates](#events-with-start-and-end-dates)
     - [Events with descriptions](#events-with-descriptions)
   - [Periods `@`](#periods-)
   - [Markers `=`](#markers-)
+  - [Comments (`#`)](#comments-)
   - [Modifiers](#modifiers)
     - [Colors `#color`](#colors-color)
     - [Groups `{}`](#groups-)
@@ -30,10 +34,11 @@ Powered by the [vis-timeline](https://www.npmjs.com/package/vis-timeline) librar
   - [Edit](#edit)
   - [Refit](#refit)
 - [Localization](#localization)
+- [Generating timelines with AI](#generating-timelines-with-ai) - [Prompt template](#prompt-template)
 
 # Syntax Overview
 
-Chronos parses markdown in `chronos` code blocks
+Chronos parses markdown in `chronos` code blocks into objects on a timeline
 
 ````markdown
 ```chronos
@@ -41,13 +46,25 @@ Chronos parses markdown in `chronos` code blocks
 ```
 ````
 
+The first character of each line in your `chronos` block determines the item type:
+
+- [Events](#events--) (`-`)
+- [Periods](#periods-)(`@`)
+- [Markers](#markers-) (`=`)
+- [Comments](#comments-) (`#`)
+
+Certain items can be modified with colors and group membership (see [Modifiers](#modifiers))
+
 ## A note on dates
 
-Chronos can visualize dates from the year, month, date, hour, minute or second level, using syntax `YYYY-MM-DDThh:mm:ss`.
+Chronos can visualize dates from the year down to the second level, using the syntax `YYYY-MM-DDThh:mm:ss`.
 
-The only required part of a date is the year (`YYYY`).
+The only required component of a date is the year (`YYYY`). Beyond that, you can specify additional time granularity as needed for your use case.
 
-Month and date default to `01` if not specified. Hour, minute and second default to `00` if not specified.
+If not explicitly provided:
+
+- The month and day default to `01` (January and the 1st)
+- The hour, minute, and second default to `00` (top of the hour or minute)
 
 Examples
 
@@ -62,7 +79,11 @@ Examples
 
 ![date example](./docs/ex-dates-optimize.gif)
 
-Date ranges are separated by a tilde `~`, and must be in chronological order
+### Date ranges
+
+Date ranges are separated by a tilde `~`, **NOT a hyphen**! Look out :)
+
+The start and end date must be in chronological order.
 
 ```
 - [2020~2024]
@@ -70,13 +91,117 @@ Date ranges are separated by a tilde `~`, and must be in chronological order
 - [2024-02-28T05:30~2024-02-28T08:30]
 ```
 
+### BCE time
+
 You can signify BCE times with the negtive symbol (-)
 
 ```
-- [-1000]  <--- 1000 BCE
+- [-10000]  <--- 10000 BCE
 - [-550~-20]  <--- 550 ~ 20 BCE
 - [-550~550]  <--- 550 BCE ~ 550 CE
 ```
+
+## Events (`-`)
+
+Events can include a single date or a date range. Event name and Description are optional.
+
+### Events with a single date
+
+**Syntax**
+
+```
+- [Date] Event Name
+```
+
+Only `[Date]` is required. If no `Event Name` is provided, the event will have no title text.
+
+Example
+
+````markdown
+```chronos
+- [1879-03-14] Einstein born
+```
+````
+
+![single date event example](./docs/ex-event-single.png)
+
+### Events with start and end dates
+
+A date range is represented with a tilde (`~`) between the start and end dates.
+
+**Syntax**
+
+```
+- [Date~Date] Event Name
+```
+
+Example
+
+````markdown
+```chronos
+- [1991~2001] Time I believed in Santa
+```
+````
+
+![event with range example](./docs/ex-event-range.png)
+
+### Events with descriptions
+
+You can add additional information to an event by adding a pipe `|` after the Event name. This text will appear in a popup when you hover over an event.
+
+Example
+
+````markdown
+```chronos
+- [1991~2001] Time I believed in Santa | ended when my brother tried to videotape Santa with a hidden camera
+```
+````
+
+![event with range example](./docs/ex-event-range-desc.png)
+
+## Periods `@`
+
+Periods represent a span of time and are displayed with a semi-transparent background. They are represented using the @ symbol. **Periods must be a range with a start and end date**.
+
+```
+@ [Date~Date] Period Name
+```
+
+````markdown
+```chronos
+@ [-300~250] #red Yayoi Period
+- [-100] Introduction of rice cultivation
+- [-57] Japan’s first recorded contact with China
+
+@ [250~538] Kofun Period
+- [250] Construction of keyhole-shaped kofun burial mounds begins
+- [369] Yamato state sends envoys to Korea
+```
+````
+
+![period example](./docs/ex-period.png)
+
+## Markers `=`
+
+Markers are used to highlight a significant event that defines the start or end of a time period. Markers are typically placed on key dates and represent important milestones. **Markers must be a single date**.
+
+```
+= [Date] Marker Name
+```
+
+Example
+
+````markdown
+```chronos
+= [1440] Invention of the Gutenberg Press
+
+- [1455] Gutenberg Bible Printed
+@ [1501~1600] The Spread of Printing
+- [1517] Martin Luther's 95 Theses
+```
+````
+
+![marker example](./docs/ex-marker.png)
 
 ## Comments (`#`)
 
@@ -99,86 +224,15 @@ Example
 
 ![comment example](./docs/ex-comment.png)
 
-# Item types
-
-The first character of each line in your `chronos` block determines the item type. Certain items can be modified with colors and group membership (see [Modifiers](#modifiers))
-
-## Events (`-`)
-
-Events can include a single date or a date range. Event name and Description are optional.
-
-### Single Date Event
-
-````markdown
-```chronos
-
-- [Date] Event Name | Description
-
-```
-````
-
-Example
-
-### Events with start and end dates
-
-A date range is represented with a tilde (`~`) between the start and end dates.
-
-```
-
-- [Date~Date] Event Name | Description
-
-```
-
-Example
-
-### Events with descriptions
-
-You can add additional information to an event by adding a pipe `|` after the Event name. This text will appear in a popup when you hover over an event.
-
-## Periods `@`
-
-Periods represent a span of time and are displayed with a semi-transparent background. They are represented using the @ symbol. **Periods must be a range with a start and end date**.
-
-```
-@ [Date~Date] Period Name
-
-```
-
-````markdown
-```chronos
-@ [-300~250] #red Yayoi Period
-- [-100] Introduction of rice cultivation
-- [-57] Japan’s first recorded contact with China
-
-@ [250~538] Kofun Period
-- [250] Construction of keyhole-shaped kofun burial mounds begins
-- [369] Yamato state sends envoys to Korea
-
-```
-````
-
-![period example](/docs/ex-period.png)
-
-## Markers `=`
-
-Markers are used to highlight a significant event that defines the start or end of a time period. Markers are typically placed on key dates and represent important milestones. **Markers must be a single date**.
-
-```
-= [YYYY-MM-DD] Marker Name
-```
-
-    YYYY-MM-DD: The specific date of the marker.
-    Marker Name: The title or description of the marker.
-
 ## Modifiers
 
 Modifiers can be added to **Events** (`-`) and **Periods** (`@`) with the following optional syntax.
 
 ```
-- [Date-Date] #color {Group Name} Event Name | description
+- [Date-Date] #color {Group Name} Event Name | Description
 ```
 
-The modifiers must go in this order: between Dates and Event Name, with color first if both color and group are used.
+The modifiers must go in this order: between `Dates` and `Event Name`, with color first if both color and group are used.
 
 ### Colors `#color`
 
@@ -193,7 +247,7 @@ Example
 - [2017~2021] #red Trump
 - [2021~2025] #blue Biden
 
-- [2020-03-11~2023-05-11] #pink COVID19
+@ [2020-03-11~2023-05-11] #pink COVID19
 ```
 ````
 
@@ -201,7 +255,9 @@ Example
 
 ### Groups `{}`
 
-Events and Periods can be grouped into "swimlanes" by specifying a Group name in curly brakcets `{}` after the date (or color if present). Group names are case sensitive and may contain spaces. The order of items does not matter.
+**Events** and **Periods** can be grouped into "swimlanes" by specifying a `Group Name` in curly brakcets `{}` after the `Date` (or `Color`, if present). Group names are case sensitive and may contain spaces.
+
+The order of items does not matter, but the example below lumps items together by group for human legibility.
 
 Example
 
@@ -216,7 +272,6 @@ Example
 - [1944] {Jorge Luis Borges} "Ficciones"
 - [1949] {Jorge Luis Borges} "El Aleph"
 - [1962] {Jorge Luis Borges} "Labyrinths"
-
 ```
 ````
 
@@ -224,7 +279,7 @@ Example
 
 ## Advanced example
 
-This example combines Events, Periods, Markers, Comments, Descriptions, Groups and colors
+This example combines **Events**, **Periods**, **Markers**, **Comments**, **Descriptions**, **Groups** and **Colors**
 
 ````markdown
 ```chronos
@@ -273,18 +328,85 @@ This example combines Events, Periods, Markers, Comments, Descriptions, Groups a
 
 ## Edit
 
-To switch to edit mode for markdown, hover on the timeline then click the code icon that shows up in the upper right corner
+To enter **Edit** mode an update your `chronos` markdown, hover over the timeline and click the code icon that appears in the upper-right corner.
 
 ![edit example](./docs/ex-edit.png)
+![edit example - markdown mode](./docs/ex-edit-2.png)
 
 ## Refit
 
-Click the refit button (crosshairs icon) in the lower right to refit all items to the view window.
+Click the **Refit** button (crosshairs icon) in the lower-right corner to adjust all items to fit within the view window.
 
 ![refit example](./docs/ex-refit.png)
 
 # Localization
 
-In the Chronos Timeline plugin settings, you can select your preferred language for displaying dates in event tooltips. Available language options depend on your system's language settings.
+You can choose your preferred language for event date tooltips, from the Chronos Timeline plugin settings.
 
-![settings example](./docs/ex-settings.png)
+Available options depend on your system's language settings.
+
+![localization example - settings menu](./docs/ex-localization-1.png)
+
+![localization example - tooltip](./docs/ex-localization-2.png)
+
+# Generating timelines with AI
+
+_In the future this may be added as a feature directly in the plugin._
+
+LLMs like [ChatGPT](https://chatgpt.com/) are good at generating Chronos timelines in one shot. Just paste your information in the placeholder <YOUR REQUEST HERE> and ask AI.
+
+Example requests:
+
+- "Industrial Revolution"
+- "Industrial Revolution, with groups for different regions of the world"
+- "The life and works of Jorge Luis Borges"
+- _some text with time data to convert to Chronos_
+
+### Prompt template
+
+````markdown
+Generate timelines in markdown using Chronos syntax, a simple line-by-line format for creating events, periods, and markers.
+
+### Syntax Overview:
+
+1. **Events**: `- [Date~Date] Event Name | Description`
+
+   - The second Date, Event Name, and Description are optional.
+
+2. **Periods**: `@ [Date~Date] Period Name`
+
+   - Requires both start and end Dates. Period Name is optional.
+   - Periods do NOT have descriptions.
+
+3. **Markers**: `= [Date] Marker Name`
+   - Requires a single Date.
+
+### Rules:
+
+- Important: the items should be wrapped in a codeblock with language "chronos"
+- Important: keep Period Names and Event Names as brief as possible
+- **Date format**: `YYYY-MM-DDThh:mm:ss`, with minimum granularity required (e.g., just year).
+- Use `#` at the start of a line to add ignored comments.
+- Events and Periods support optional modifiers:
+  - **Colors**: e.g., `$red, #blue`.
+  - **Groups**: `{Group Name}` (case-sensitive, can include spaces).
+- Possible colors: $red, #orange, #yellow, #green, #blue, #purple, #pink, #cyan
+- BCE Dates: Represented with `-` (e.g., `-10000` for 10000 BCE).
+- Periods can use colors to differentiate overlapping or sequential periods.
+- Focus on simplicity; not all item types need to be used.
+
+### Example:
+
+```chronos
+- [1947-03-12] Truman Doctrine | Committing the U.S. to containing communism
+- [1948-06-24~1949-05-12] Berlin Blockade | Soviet blockade and Allied airlift
+@ [1947-01-01~1953-12-31] Early Cold War
+- [1957-10-04] Sputnik launched | Start of the Space Race
+@ [1963-01-01~1979-12-31] #red Détente Period
+= [1991-12-26] End of the Cold War
+```
+
+Using Chronos syntax, generate markdown for a timeline of the following:
+
+<YOUR REQUEST HERE>
+````
