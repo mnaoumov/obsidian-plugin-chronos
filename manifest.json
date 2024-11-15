@@ -5,7 +5,7 @@
   "minAppVersion": "0.15.0",
   "description": "Render interactive timelines in your notes from markdown",
   "author": "Claire Froelich",
-  "authorUrl": "https://github.com/clairefro/obsidian-plugin-chronos",
+  "authorUrl": "https://clairefro.dev",
   "fundingUrl": "https://buymeacoffee.com/clairefro",
   "isDesktopOnly": false
 }
