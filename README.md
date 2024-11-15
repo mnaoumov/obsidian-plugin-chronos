@@ -23,7 +23,7 @@ Powered by the [vis-timeline](https://www.npmjs.com/package/vis-timeline) librar
   - [Periods `@`](#periods-)
   - [Markers `=`](#markers-)
   - [Modifiers](#modifiers)
-    - [Colors `#`](#colors-)
+    - [Colors `#color`](#colors-color)
     - [Groups `{}`](#groups-)
   - [Advanced example](#advanced-example)
 - [Actions](#actions)
@@ -180,7 +180,7 @@ Modifiers can be added to **Events** (`-`) and **Periods** (`@`) with the follow
 
 The modifiers must go in this order: between Dates and Event Name, with color first if both color and group are used.
 
-### Colors `#`
+### Colors `#color`
 
 Available colors: `#red` | `#orange` | `#yellow` | `#green` | `#blue` | `purple` | `#pink` | `#cyan`
 
