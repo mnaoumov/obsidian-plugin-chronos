@@ -97,7 +97,9 @@ export class ChronosTimeline {
 			minHeight: "200px",
 			align: this.settings.align,
 			locale: this.settings.selectedLocale,
-			moment: (date: Date) => moment(date).utc(),
+			moment: this.settings.useUtc
+				? (date: Date) => moment(date).utc()
+				: (date: Date) => moment(date),
 		};
 	}
 
