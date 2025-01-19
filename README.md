@@ -536,11 +536,16 @@ Turn your Obsidian notes into living, breathing timelines that **update automati
 - [Dataview](https://blacksmithgu.github.io/obsidian-dataview/) plugin installed
 - JavaScript queries enabled in Dataview settings
 
+You can put your dataview code inside of `dataviewjs` code fences: 
+````markdown
+```dataviewjs
+``` 
+````
 ## Basic Example
 
 Create a timeline of birthdays from notes in the directory `Contacts` and also link the notes:
-
-```js
+````markdown
+```dataviewjs
 const pages = dv.pages('"Contacts"').where((p) => p.birthday); // skip all without birthday
 
 let events = pages
@@ -553,13 +558,16 @@ let events = pages
 
 const chronosBlock = `\`\`\`chronos\n${events}\n\`\`\``;
 dv.paragraph(chronosBlock);
-```
+``` 
+````
+
 
 ## Advanced Usage
 
 Create a timeline of all contacts' birthdays, with family members highlighted in blue:
 
-```js
+````markdown
+```dataviewjs
 // Query all contacts with birthdays
 const contacts = dv.pages('"Contacts"').where((p) => p.birthday);
 
@@ -583,13 +591,15 @@ ${events}
 
 dv.paragraph(chronosBlock);
 ```
+````
 
 ## Combining Dynamic and Static Events
 
 You can mix dynamically generated events with static timeline entries.
 Here's an example that combines dynamic birthdays with fixed holidays and periods:
 
-```js
+````markdown
+```dataviewjs
 // Query all contacts with birthdays
 const contacts = dv.pages('"Contacts"').where((p) => p.birthday);
 
@@ -618,6 +628,7 @@ ${birthdayEvents}
 
 dv.paragraph(chronosBlock);
 ```
+````
 
 ## Tips
 
