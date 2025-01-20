@@ -92,6 +92,7 @@ export class ChronosTimeline {
 
 	private _getTimelineOptions(): TimelineOptions {
 		return {
+			zoomMax: 2.997972e14, // 9500 years - vis timeline seems to break at larger range
 			zoomable: true,
 			selectable: true,
 			minHeight: "200px",
