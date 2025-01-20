@@ -522,7 +522,7 @@ class ChronosPluginSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName("Use UTC time (recommended)")
 			.setDesc(
-				"If disabled, Chronos will use your system time to display the events and current time. Using local time is only recommended if you are using Chronos for tasks at the intra-day, and may have unintended side effects like showing historical events one day off during certain times of day.",
+				"If disabled, Chronos will use your system time to display the events and current time. Using local time is only recommended if you are using Chronos for tasks at the intra-day level, and may have unintended side effects like showing historical events one day off during certain times of day.",
 			)
 			.addToggle((toggle) =>
 				toggle
