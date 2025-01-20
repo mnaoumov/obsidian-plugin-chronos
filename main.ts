@@ -107,6 +107,10 @@ export default class ChronosPlugin extends Plugin {
 	}
 
 	private _renderChronosBlock(source: string, el: HTMLElement) {
+		// HACK for preventing triple propogation of mouseDown handler
+		let lastEventTime = 0;
+		const THROTTLE_MS = 500;
+
 		const container = el.createEl("div", {
 			cls: "chronos-timeline-container",
 		});
@@ -119,17 +123,36 @@ export default class ChronosPlugin extends Plugin {
 			timeline.render(source);
 			// handle note linking
 			timeline.on("mouseDown", (event) => {
-				const itemId = event.item;
-				if (itemId) {
+				const now = performance.now();
+				if (now - lastEventTime < THROTTLE_MS) {
+					event.event.stopImmediatePropagation();
 					event.event.preventDefault();
+					return;
+				}
+				lastEventTime = now;
+
+				// Stop event immediately
+				if (event.event instanceof MouseEvent) {
+					// logEventDetails(event.event, "Timeline MouseDown");
+
+					event.event.stopImmediatePropagation();
+					event.event.preventDefault();
+
+					const itemId = event.item;
+					if (!itemId) return;
+
 					const item = timeline.items?.find((i) => i.id === itemId);
+					if (!item?.cLink) return;
 
-					const openInNewLeaf =
-						event.event.button === 1 || event.event.shiftKey;
+					// Check for middle click or CMD+click (Mac)
+					const isMiddleClick = event.event.button === 1;
+					const isCmdClick =
+						event.event.metaKey && event.event.button === 0;
+					const isShiftClick = event.event.shiftKey;
 
-					if (item?.cLink) {
-						this._openFileFromWikiLink(item.cLink, openInNewLeaf);
-					}
+					const shouldOpenInNewLeaf =
+						isMiddleClick || isCmdClick || isShiftClick;
+					this._openFileFromWikiLink(item.cLink, shouldOpenInNewLeaf);
 				}
 			});
 
