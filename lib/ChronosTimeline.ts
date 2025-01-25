@@ -1,7 +1,6 @@
 import { setTooltip } from "obsidian";
-import moment from "moment";
 import { Timeline, TimelineOptions } from "vis-timeline";
-import { DataSet } from "vis-timeline/standalone";
+import { DataSet, moment } from "vis-timeline/standalone";
 import crosshairsSvg from "../assets/icons/crosshairs.svg";
 import {
 	Marker,
@@ -91,16 +90,18 @@ export class ChronosTimeline {
 	}
 
 	private _getTimelineOptions(): TimelineOptions {
+		console.log(this.settings.selectedLocale);
 		return {
 			zoomMax: 2.997972e14, // 9500 years - vis timeline seems to break at larger range
 			zoomable: true,
 			selectable: true,
 			minHeight: "200px",
 			align: this.settings.align,
-			locale: this.settings.selectedLocale,
-			moment: this.settings.useUtc
-				? (date: Date) => moment(date).utc()
-				: (date: Date) => moment(date),
+			// locale: this.settings.selectedLocale,
+			moment: (date: Date) => {
+				let m = moment(date).locale(this.settings.selectedLocale);
+				return this.settings.useUtc ? m.utc() : m;
+			},
 		};
 	}
 
