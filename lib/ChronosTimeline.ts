@@ -57,6 +57,10 @@ export class ChronosTimeline {
 			if (flags?.noToday) {
 				options.showCurrentTime = false;
 			}
+			if (flags?.height) {
+				options.height = `${flags.height}px`;
+				options.verticalScroll = true;
+			}
 
 			const timeline = this._createTimeline(items, groups, options);
 			this._addMarkers(timeline, markers);

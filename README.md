@@ -345,6 +345,27 @@ Hide the vertical bar that marks today's time
 > NOTODAY
 ```
 
+(without flag)
+
+````markdown
+```chronos
+- [2025-02-02~2025-03-28] foo
+```
+````
+
+![notday without flag example](./docs/ex-notoday-without-flag.png)
+
+(with flag)
+
+````markdown
+```chronos
+> NOTODAY
+- [2025-02-02~2025-03-28] foo
+```
+````
+
+![notday with flag example](./docs/ex-notoday-with-flag.png)
+
 ### ORDERBY flag
 
 By default, Chronos ordering is set by the stacking of the elements in the timeline.
@@ -362,6 +383,34 @@ The `ORDERBY` flag can be used to specify an ordering
     - _Start date_ | _end date_ | _item label content_ | _color_ | _item description_
 - You can stack them by joining them with a pipe `|` to add another sorting level.
 - You can prepend a dash `-` to any of the fields to order in descending order on this field.
+
+### HEIGHT flag
+
+Set a fixed height for a given timeline (in pixels).
+
+If needed, you can vertically scroll your timleline by clicking and dragging up or down
+
+```
+> HEIGHT <number of pixels>
+```
+
+````markdown
+```chronos
+> HEIGHT 300
+
+- [2025-02-02~2025-03-28] foo 1
+- [2025-02-02~2025-03-28] foo 2
+- [2025-02-02~2025-03-28] foo 3
+- [2025-02-02~2025-03-28] foo 4
+- [2025-02-02~2025-03-28] foo 5
+- [2025-02-02~2025-03-28] foo 6
+- [2025-02-02~2025-03-28] foo 7
+- [2025-02-02~2025-03-28] foo 8
+- [2025-02-02~2025-03-28] foo 9
+```
+````
+
+![height example](./docs/ex-height.gif)
 
 ### DEFAULTVIEW flag
 
