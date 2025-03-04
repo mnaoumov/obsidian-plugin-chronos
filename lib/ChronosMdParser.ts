@@ -362,6 +362,36 @@ export class ChronosMdParser {
 				console.log("no today flag detected");
 				this.flags.noToday = true;
 				break;
+
+			case "height":
+				console.log({ flagContent });
+				if (!flagContent.length) {
+					this._addParserError(
+						lineNumber,
+						`Must provide number of pixels for HEIGHT flag (ex: 500): ${line}`,
+					);
+					return;
+				}
+				const arg = flagContent[0].trim();
+				if (arg.match(/\s/)) {
+					this._addParserError(
+						lineNumber,
+						`Must provide a single number (of pixels) for HEIGHT flag (ex: 500): ${line}`,
+					);
+					return;
+				}
+				if (isNaN(Number(arg))) {
+					console.log({ arg });
+					console.log(Number(arg));
+					this._addParserError(
+						lineNumber,
+						`Must provide a number (of pixels) for HEIGHT flag (ex: 500): ${line}`,
+					);
+					return;
+				}
+
+				this.flags.height = Number(arg);
+				break;
 			default:
 				this._addParserError(lineNumber, `Unrecognized flag: ${line}`);
 				break;

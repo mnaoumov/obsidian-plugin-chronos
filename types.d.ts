@@ -36,7 +36,8 @@ export type Flags = {
 		start?: string;
 		end?: string;
 	};
-	noToday?: boolean
+	noToday?: boolean;
+	height?: number;
 };
 
 export interface ParseResult {
