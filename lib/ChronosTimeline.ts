@@ -54,6 +54,10 @@ export class ChronosTimeline {
 				options.end = flags?.defaultView?.end;
 			}
 
+			if (flags?.noToday) {
+				options.showCurrentTime = false;
+			}
+
 			const timeline = this._createTimeline(items, groups, options);
 			this._addMarkers(timeline, markers);
 			this._setupTooltip(timeline, items);
@@ -90,7 +94,6 @@ export class ChronosTimeline {
 	}
 
 	private _getTimelineOptions(): TimelineOptions {
-		console.log(this.settings.selectedLocale);
 		return {
 			zoomMax: 2.997972e14, // 9500 years - vis timeline seems to break at larger range
 			zoomable: true,

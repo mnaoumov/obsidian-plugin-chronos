@@ -323,6 +323,28 @@ Chronos will ignore any line that starts with `#`. You can use this to write com
 
 ## Flags `>`
 
+You can add flags to your timeline by using the `>` symbol. Flags are parsed on separate lines, and are case insenstive. You can use multiple flags.
+
+Example: The timeline below uses the `NOTODAY` and `ORDERBY` flags, to hide the current time marker and to order the stack of overlapping items by start date.
+
+````markdown
+```chronos
+> NOTODAY
+> ORDERBY start
+
+- [2022~2024] foo
+- [2020~2024] bar
+```
+````
+
+### NOTODAY flag
+
+Hide the vertical bar that marks today's time
+
+```
+> NOTODAY
+```
+
 ### ORDERBY flag
 
 By default, Chronos ordering is set by the stacking of the elements in the timeline.
@@ -536,14 +558,18 @@ Turn your Obsidian notes into living, breathing timelines that **update automati
 - [Dataview](https://blacksmithgu.github.io/obsidian-dataview/) plugin installed
 - JavaScript queries enabled in Dataview settings
 
-You can put your dataview code inside of `dataviewjs` code fences: 
+You can put your dataview code inside of `dataviewjs` code fences:
+
 ````markdown
 ```dataviewjs
-``` 
+
+```
 ````
+
 ## Basic Example
 
 Create a timeline of birthdays from notes in the directory `Contacts` and also link the notes:
+
 ````markdown
 ```dataviewjs
 const pages = dv.pages('"Contacts"').where((p) => p.birthday); // skip all without birthday
@@ -558,9 +584,8 @@ let events = pages
 
 const chronosBlock = `\`\`\`chronos\n${events}\n\`\`\``;
 dv.paragraph(chronosBlock);
-``` 
+```
 ````
-
 
 ## Advanced Usage
 

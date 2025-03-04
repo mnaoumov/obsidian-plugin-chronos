@@ -312,8 +312,8 @@ export class ChronosMdParser {
 	}
 
 	private _parseFlag(line: string, lineNumber: number) {
-		const flagContentP = `(\\w+)\\s+([-\\w|\\s]+)$`;
-		const re = new RegExp(`${FLAGS_PREFIX}\\s*${flagContentP}`, "i");
+		const flagPattern = `(\\w+)(?:\\s+(.+))?$`;
+		const re = new RegExp(`${FLAGS_PREFIX}\\s*${flagPattern}`, "i");
 		const match = line.match(re);
 
 		if (!match) return;
@@ -358,9 +358,11 @@ export class ChronosMdParser {
 					this._addParserError(lineNumber, `${e.message}: ${line}`);
 				}
 				break;
-
+			case "notoday":
+				console.log("no today flag detected");
+				this.flags.noToday = true;
+				break;
 			default:
-				// TODO: Handle case where flag is not recognized
 				this._addParserError(lineNumber, `Unrecognized flag: ${line}`);
 				break;
 		}
