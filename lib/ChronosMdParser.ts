@@ -364,7 +364,6 @@ export class ChronosMdParser {
 				break;
 
 			case "height":
-				console.log({ flagContent });
 				if (!flagContent.length) {
 					this._addParserError(
 						lineNumber,
@@ -381,8 +380,6 @@ export class ChronosMdParser {
 					return;
 				}
 				if (isNaN(Number(arg))) {
-					console.log({ arg });
-					console.log(Number(arg));
 					this._addParserError(
 						lineNumber,
 						`Must provide a number (of pixels) for HEIGHT flag (ex: 500): ${line}`,
