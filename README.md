@@ -366,23 +366,6 @@ Hide the vertical bar that marks today's time
 
 ![notday with flag example](./docs/ex-notoday-with-flag.png)
 
-### ORDERBY flag
-
-By default, Chronos ordering is set by the stacking of the elements in the timeline.
-
-The `ORDERBY` flag can be used to specify an ordering
-
-> [!WARNING]  
-> Ordering can make the timeline laggy when there are many items. Use with precaution
-
-```
-> ORDERBY start|-content
-```
-
-- You can use any of these fields: `start` | `end` | `content` | `color` | `description`.
-    - _Start date_ | _end date_ | _item label content_ | _color_ | _item description_
-- You can stack them by joining them with a pipe `|` to add another sorting level.
-- You can prepend a dash `-` to any of the fields to order in descending order on this field.
 
 ### HEIGHT flag
 
@@ -412,17 +395,23 @@ If needed, you can vertically scroll your timleline by clicking and dragging up 
 
 ![height example](./docs/ex-height.gif)
 
-### DEFAULTVIEW flag
+### ORDERBY flag
 
-Use the `> DEFAULTVIEW start|end` flag to specify default start and end dates for your timeline's initial load. You can use YYYY-MM-DD timestamps for the start and end date, with the minimum requirement being YYYY.
+By default, Chronos ordering is set by the stacking of the elements in the timeline.
 
-```chronos
-> DEFAULTVIEW  -3000|3000
+The `ORDERBY` flag can be used to specify an ordering
 
-- [2024] AGI
+> [!WARNING]  
+> Ordering can make the timeline laggy when there are many items. Use with precaution
+
+```
+> ORDERBY start|-content
 ```
 
-![default view example](./docs/ex-default-view.png)
+- You can use any of these fields: `start` | `end` | `content` | `color` | `description`.
+    - _Start date_ | _end date_ | _item label content_ | _color_ | _item description_
+- You can stack them by joining them with a pipe `|` to add another sorting level.
+- You can prepend a dash `-` to any of the fields to order in descending order on this field.
 
 #### Example
 
@@ -455,6 +444,19 @@ Use the `> DEFAULTVIEW start|end` flag to specify default start and end dates fo
 ````
 
 ![order by color and start date](./docs/ex-order-by-color-start.png)
+
+
+### DEFAULTVIEW flag
+
+Use the `> DEFAULTVIEW start|end` flag to specify default start and end dates for your timeline's initial load. You can use YYYY-MM-DD timestamps for the start and end date, with the minimum requirement being YYYY.
+
+```chronos
+> DEFAULTVIEW  -3000|3000
+
+- [2024] AGI
+```
+
+![default view example](./docs/ex-default-view.png)
 
 ## Modifiers
 
