@@ -14,6 +14,7 @@ import { enDatestrToISO } from "../util/enDateStrToISO";
 import { smartDateRange } from "../util/smartDateRange";
 import { ChronosMdParser } from "./ChronosMdParser";
 import { orderFunctionBuilder } from "./flags";
+import { chronosMoment } from "./chronosMoment";
 
 const MS_UNTIL_REFIT = 100;
 
@@ -105,10 +106,7 @@ export class ChronosTimeline {
 			minHeight: "200px",
 			align: this.settings.align,
 			// locale: this.settings.selectedLocale,
-			moment: (date: Date) => {
-				let m = moment(date).locale(this.settings.selectedLocale);
-				return this.settings.useUtc ? m.utc() : m;
-			},
+			moment: (date: Date) => chronosMoment(date, this.settings),
 		};
 	}
 
