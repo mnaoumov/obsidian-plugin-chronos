@@ -10,12 +10,6 @@ const chronosMomentInstance = (moment as any).clone?.() || moment;
  * @returns An encapsulated moment instance with the specified locale and UTC setting
  */
 export function chronosMoment(date: Date, settings: ChronosPluginSettings) {
-	// Capture the current default locale
-	const defaultLocale = moment.locale();
-
-	// Create moment with the requested locale
 	const m = chronosMomentInstance(date).locale(settings.selectedLocale);
-	const result = settings.useUtc ? m.utc() : m;
-
-	return result;
+	return settings.useUtc ? m.utc() : m;
 }
