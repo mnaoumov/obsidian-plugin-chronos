@@ -26,6 +26,7 @@ export interface ChronosPluginSettings {
 	clickToUse: boolean;
 	roundRanges: boolean;
 	useUtc: boolean;
+	useAI: boolean;
 }
 
 export type Group = { id: number; content: string };
