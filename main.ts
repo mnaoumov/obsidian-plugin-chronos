@@ -563,9 +563,8 @@ class ChronosPluginSettingTab extends PluginSettingTab {
 			cls: "chronos-setting-header",
 		});
 
-
 		new Setting(containerEl)
-			.setName("Use AI features")
+			.setName("Use AI Features")
 			.setDesc(
 				"Toggles commands and settings for AI timeline generation.",
 			)
@@ -576,7 +575,7 @@ class ChronosPluginSettingTab extends PluginSettingTab {
 						this.plugin.settings.useAI = value;
 						await this.plugin.saveSettings();
 						// Call display to re-evaluate display conditionals for AI settings
-						this.display()
+						this.display();
 					}),
 			);
 
