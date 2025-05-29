@@ -164,7 +164,7 @@ The start and end date must be in chronological order.
 
 ### BCE time
 
-You can signify BCE times with the negtive symbol (-)
+You can signify BCE times with the negative symbol (-)
 
 ```
 - [-10000]    <--- 10000 BCE
