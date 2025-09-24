@@ -1,4 +1,5 @@
 // shim
+import { ArrowSpec } from "timeline-arrows";
 import { DataItem } from "vis-timeline";
 
 export interface Marker {
@@ -6,7 +7,16 @@ export interface Marker {
 	content: string;
 }
 
+type ArrowType = "--" | "->" | "<-" | "<>";
+
+interface ArrowData extends Partial<ArrowSpec> {
+	arrowType: ArrowType;
+	block1: string;
+	block2: string;
+}
+
 interface ChronosDataItem extends DataItem {
+	arrowSpec?: ArrowSpec;
 	cDescription?: string; // prefixed c for chronos - special prop for event tooltips
 	cLink?: string; // optional link
 	align?: "left" | "center" | "right";

@@ -6,11 +6,14 @@ import {
 	ConstructItemParams,
 	Flags,
 	ChronosPluginSettings,
+	ArrowData,
+	ArrowType,
 } from "../types";
 import { Color, Opacity } from "../enums";
 import { DEFAULT_LOCALE } from "../constants";
 import { toPaddedISOZ, toUTCDate, validateUTCDate } from "../util/utcUtil";
 import { FLAGS_PREFIX } from "./flags";
+import JSON5 from "json5";
 
 export class ChronosMdParser {
 	private errors: string[] = [];
@@ -53,6 +56,8 @@ export class ChronosMdParser {
 			} else if (line.startsWith(FLAGS_PREFIX)) {
 				// Flag
 				this._parseFlag(line, lineNumber);
+			} else if (line.startsWith("~")) {
+				this._parseArrow(line, lineNumber);
 			} else if (line) {
 				this._addParserError(
 					lineNumber,
@@ -198,6 +203,7 @@ export class ChronosMdParser {
 			className: classes,
 			cLink,
 			...(type === "default" ? {} : { type }),
+			id: lineNumber,
 		};
 	}
 
@@ -233,6 +239,37 @@ export class ChronosMdParser {
 				cLink,
 			});
 		}
+	}
+
+	private _parseArrow(line: string, lineNumber: number) {
+		let arrowData: ArrowData;
+		try {
+			arrowData = JSON5.parse(line.slice(1)) as ArrowData;
+		} catch {
+			this._addParserError(lineNumber, `Invalid arrow format: ${line}`);
+			return;
+		}
+		const block1 = this.items.find((item) => item.content === arrowData.block1);
+		if (!block1) {
+			this._addParserError(lineNumber, `Block 1 not found: ${arrowData.block1}`);
+			return;
+		}
+		const block2 = this.items.find((item) => item.content === arrowData.block2);
+		if (!block2) {
+			this._addParserError(lineNumber, `Block 2 not found: ${arrowData.block2}`);
+			return;
+		}
+		this.items.push({
+			id: lineNumber,
+			type: "arrow",
+			arrowSpec: {
+				...arrowData,
+				id: lineNumber,
+				id_item_1: block1.id!,
+				id_item_2: block2.id!,
+				direction: getArrowDirection(arrowData.arrowType)
+			}
+		});
 	}
 
 	private _parsePeriod(line: string, lineNumber: number) {
@@ -513,3 +550,18 @@ export class ChronosMdParser {
 		this._clearFlags();
 	}
 }
+function getArrowDirection(arrowType: ArrowType): number {
+	switch (arrowType) {
+		case "--":
+			return 0;
+		case "->":
+			return 1;
+		case "<-":
+			return 2;
+		case "<>":
+			return 3;
+		default:
+			throw new Error(`Invalid arrow type: ${arrowType}`);
+	}
+}
+

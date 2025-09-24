@@ -9,12 +9,14 @@ import {
 	ChronosTimelineConstructor,
 	ChronosDataItem,
 	ChronosDataSetDataItem,
+	ArrowType,
 } from "../types";
 import { enDatestrToISO } from "../util/enDateStrToISO";
 import { smartDateRange } from "../util/smartDateRange";
 import { ChronosMdParser } from "./ChronosMdParser";
 import { orderFunctionBuilder } from "./flags";
 import { chronosMoment } from "./chronosMoment";
+import Arrow, { ArrowSpec } from "timeline-arrows";
 
 const MS_UNTIL_REFIT = 100;
 
@@ -130,9 +132,12 @@ export class ChronosTimeline {
 		options: TimelineOptions,
 	): Timeline {
 		let timeline: Timeline;
+		const arrowItems = items.filter((item) => item.type === "arrow");
+		const timelineItems = items.filter((item) => item.type !== "arrow");
+
 		if (groups.length) {
-			const { updatedItems, updatedGroups } = this.assignItemsToGroups(
-				items,
+			let { updatedItems, updatedGroups } = this.assignItemsToGroups(
+				timelineItems,
 				groups,
 			);
 
@@ -145,10 +150,14 @@ export class ChronosTimeline {
 				options,
 			);
 		} else {
-			timeline = new Timeline(this.container, items, options);
+			timeline = new Timeline(this.container, timelineItems, options);
 			this.items = items;
 		}
 
+		if (arrowItems.length) {
+			new Arrow(timeline, arrowItems.map((item) => item.arrowSpec).filter((spec) => spec !== undefined));
+		}
+		
 		setTimeout(() => this._updateTooltipCustomMarkers(), MS_UNTIL_REFIT);
 		return timeline;
 	}

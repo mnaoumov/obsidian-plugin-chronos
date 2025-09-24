@@ -27,6 +27,7 @@
 		"typescript": "4.7.4"
 	},
 	"dependencies": {
+		"json5": "^2.2.3",
 		"moment": "^2.30.1",
 		"timeline-arrows": "^4.7.1",
 		"vis-timeline": "^7.7.3"
