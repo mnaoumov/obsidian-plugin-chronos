@@ -135,6 +135,13 @@ export class ChronosTimeline {
 		const arrowItems = items.filter((item) => item.type === "arrow");
 		const timelineItems = items.filter((item) => item.type !== "arrow");
 
+		if (arrowItems.length > 0 && groups.length === 0) {
+			groups.push({
+				id: "__EMPTY_GROUP__",
+				content: "",
+			});
+		}
+
 		if (groups.length) {
 			let { updatedItems, updatedGroups } = this.assignItemsToGroups(
 				timelineItems,
