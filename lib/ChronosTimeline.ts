@@ -162,7 +162,7 @@ export class ChronosTimeline {
 		}
 
 		if (arrowItems.length) {
-			new Arrow(timeline, arrowItems.map((item) => item.arrowSpec).filter((spec) => spec !== undefined));
+			new Arrow(timeline, arrowItems.map((item) => item.arrowSpec).filter((spec) => spec !== undefined) as ArrowSpec[]);
 		}
 		
 		setTimeout(() => this._updateTooltipCustomMarkers(), MS_UNTIL_REFIT);

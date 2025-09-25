@@ -262,6 +262,8 @@ export class ChronosMdParser {
 		this.items.push({
 			id: lineNumber,
 			type: "arrow",
+			content: "",
+			start: "",
 			arrowSpec: {
 				...arrowData,
 				id: lineNumber,

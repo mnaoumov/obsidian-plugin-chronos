@@ -1,6 +1,6 @@
 // shim
 import { ArrowSpec } from "timeline-arrows";
-import { DataItem } from "vis-timeline";
+import { DataItem, IdType } from "vis-timeline";
 
 export interface Marker {
 	start: string;
@@ -39,7 +39,7 @@ export interface ChronosPluginSettings {
 	useAI: boolean;
 }
 
-export type Group = { id: number; content: string };
+export type Group = { id: IdType; content: string };
 
 export type Flags = {
 	orderBy?: string[];
